@@ -8,7 +8,8 @@
     "precommit": "pretty-quick --staged",
     "bootstrap": "lerna bootstrap",
     "test": "jest",
-    "lint": "eslint --cache '**/{src,test}/**/*.js'"
+    "lint": "eslint --cache '**/{src,test}/**/*.js'",
+    "flow": "flow --show-all-errors"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,7 @@
     "eslint-plugin-node": "^6.0.1",
     "eslint-plugin-promise": "^3.8.0",
     "eslint-plugin-standard": "^3.1.0",
+    "flow-bin": "^0.75.0",
     "husky": "^0.14.3",
     "lerna": "^2.9.0",
     "prettier": "^1.13.5",
