@@ -5,6 +5,7 @@
   "version": "0.3.0",
   "main": "index.js",
   "scripts": {
+    "precommit": "pretty-quick --staged",
     "test": "jest"
   },
   "repository": {
@@ -24,6 +25,9 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "devDependencies": {
-    "lerna": "^2.9.0"
+    "husky": "^0.14.3",
+    "lerna": "^2.9.0",
+    "prettier": "^1.13.5",
+    "pretty-quick": "^1.6.0"
   }
 }
