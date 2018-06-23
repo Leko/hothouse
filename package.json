@@ -1,0 +1,28 @@
+{
+  "name": "hothouse",
+  "description": "Continuous dependency update for Node.js project",
+  "version": "0.3.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Leko/hothouse.git"
+  },
+  "keywords": [
+    "cli",
+    "ci",
+    "dependency",
+    "update"
+  ],
+  "author": "Leko <leko.noor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Leko/hothouse/issues"
+  },
+  "homepage": "https://github.com/Leko/hothouse#readme",
+  "devDependencies": {
+    "lerna": "^2.9.0"
+  }
+}
