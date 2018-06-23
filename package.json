@@ -1,5 +1,6 @@
 {
   "name": "hothouse",
+  "private": true,
   "description": "Continuous dependency update for Node.js project",
   "version": "0.3.0",
   "main": "index.js",
