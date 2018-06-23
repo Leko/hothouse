@@ -6,6 +6,7 @@
   "main": "index.js",
   "scripts": {
     "precommit": "pretty-quick --staged",
+    "bootstrap": "lerna bootstrap",
     "test": "jest",
     "lint": "eslint --cache '**/{src,test}/**/*.js'"
   },
