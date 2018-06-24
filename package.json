@@ -7,6 +7,7 @@
   "scripts": {
     "precommit": "pretty-quick --staged",
     "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
     "test": "jest",
     "lint": "eslint --cache '**/{src,test}/**/*.js'",
     "flow": "flow --show-all-errors"
@@ -28,6 +29,16 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.51",
+    "@babel/preset-env": "^7.0.0-beta.51",
+    "@babel/preset-flow": "^7.0.0-beta.51",
+    "@babel/register": "^7.0.0-beta.51",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.5",
+    "babel-jest": "^23.0.1",
     "eslint": "^5.0.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-standard": "^11.0.0",
