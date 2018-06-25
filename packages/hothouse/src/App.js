@@ -161,6 +161,7 @@ export default class App {
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
     });
+    console.log({ hosting }, hosting.getDefaultBranch);
     const base = await hosting.getDefaultBranch(token, repositoryUrl);
     await hosting.createPullRequest(
       token,
