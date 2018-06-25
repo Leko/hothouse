@@ -154,8 +154,7 @@ export default class App {
       "git",
       ["remote", "get-url", "--push", "origin"],
       {
-        encoding: "utf8",
-        stdio: "inherit"
+        encoding: "utf8"
       }
     );
 
