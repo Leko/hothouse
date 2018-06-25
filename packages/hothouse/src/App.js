@@ -150,12 +150,21 @@ export default class App {
       stdio: "inherit"
     });
 
-    const meta = await this.npmClient.getPackageMeta(packageAnnotation);
-    const hosting = await this.detectHosting(meta);
-    const base = await hosting.getDefaultBranch(token, meta.repository.url);
+    const { stdout: repositoryUrl } = cp.spawnSync(
+      "git",
+      ["remote", "get-url", "--push", "origin"],
+      {
+        encoding: "utf8",
+        stdio: "inherit"
+      }
+    );
+    const hosting = await this.detectHosting({
+      repository: { url: repositoryUrl }
+    });
+    const base = await hosting.getDefaultBranch(token, repositoryUrl);
     await hosting.createPullRequest(
       token,
-      meta.repository.url,
+      repositoryUrl,
       base,
       branchName,
       title,
