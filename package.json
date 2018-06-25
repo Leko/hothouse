@@ -52,5 +52,6 @@
     "lerna": "^2.9.0",
     "prettier": "^1.13.5",
     "pretty-quick": "^1.6.0"
-  }
+  },
+  "dependencies": {}
 }
