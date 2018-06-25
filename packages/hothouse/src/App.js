@@ -159,7 +159,7 @@ export default class App {
       }
     );
 
-    console.log("###", "detectHosting", "###");
+    console.log("###", "detectHosting", repositoryUrl, "###");
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
     });
