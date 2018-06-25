@@ -179,6 +179,7 @@ export default class App {
     }
 
     for (let hosting of hostings) {
+      console.log({ url: meta.repository.url });
       if (await hosting.match(meta.repository.url)) {
         return hosting;
       }
