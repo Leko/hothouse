@@ -158,6 +158,8 @@ export default class App {
         stdio: "inherit"
       }
     );
+
+    console.log("###", detectHosting, "###");
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
     });
