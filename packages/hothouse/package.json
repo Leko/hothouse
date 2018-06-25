@@ -1,0 +1,43 @@
+{
+  "name": "hothouse",
+  "version": "0.3.0",
+  "description": "Continuous dependency update for Node.js project",
+  "bin": {
+    "hothouse": "./dist/cli.js"
+  },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "../../node_modules/.bin/babel --config-file ../../.babelrc src --out-dir dist",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Leko/hothouse.git"
+  },
+  "keywords": [
+    "cli",
+    "ci",
+    "dependency",
+    "update"
+  ],
+  "author": "Leko <leko.noor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Leko/hothouse/issues"
+  },
+  "homepage": "https://github.com/Leko/hothouse#readme",
+  "devDependencies": {
+    "chalk": "^2.4.1",
+    "yargs": "^11.0.0"
+  },
+  "dependencies": {
+    "@octokit/rest": "^15.9.2",
+    "glob": "^7.1.2",
+    "minimatch": "^3.0.4",
+    "parse-github-repo-url": "^1.4.1",
+    "semver": "^5.5.0"
+  }
+}

@@ -1,0 +1,12 @@
+[ignore]
+
+[include]
+
+[libs]
+./packages/hothouse/type-definition/index.js.flow
+
+[lints]
+
+[options]
+
+[strict]

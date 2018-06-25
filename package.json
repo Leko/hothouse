@@ -1,0 +1,57 @@
+{
+  "name": "hothouse",
+  "private": true,
+  "description": "Continuous dependency update for Node.js project",
+  "version": "0.3.0",
+  "main": "index.js",
+  "scripts": {
+    "precommit": "pretty-quick --staged",
+    "bootstrap": "lerna bootstrap",
+    "build": "lerna run build",
+    "test": "jest",
+    "lint": "eslint --cache '**/{src,test}/**/*.js'",
+    "flow": "flow --show-all-errors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Leko/hothouse.git"
+  },
+  "keywords": [
+    "cli",
+    "ci",
+    "dependency",
+    "update"
+  ],
+  "author": "Leko <leko.noor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Leko/hothouse/issues"
+  },
+  "homepage": "https://github.com/Leko/hothouse#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.0.0-beta.51",
+    "@babel/core": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-class-properties": "^7.0.0-beta.51",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0-beta.51",
+    "@babel/preset-env": "^7.0.0-beta.51",
+    "@babel/preset-flow": "^7.0.0-beta.51",
+    "@babel/register": "^7.0.0-beta.51",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.5",
+    "babel-jest": "^23.0.1",
+    "eslint": "^5.0.0",
+    "eslint-config-prettier": "^2.9.0",
+    "eslint-config-standard": "^11.0.0",
+    "eslint-plugin-flowtype": "^2.49.3",
+    "eslint-plugin-import": "^2.12.0",
+    "eslint-plugin-node": "^6.0.1",
+    "eslint-plugin-promise": "^3.8.0",
+    "eslint-plugin-standard": "^3.1.0",
+    "flow-bin": "^0.75.0",
+    "husky": "^0.14.3",
+    "lerna": "^2.9.0",
+    "prettier": "^1.13.5",
+    "pretty-quick": "^1.6.0"
+  },
+  "dependencies": {}
+}
