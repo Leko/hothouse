@@ -138,8 +138,10 @@ export default class App {
         };
       }
     }
+    // $FlowFixMe(values-retuns-Updates)
+    const updatesList: Array<Updates> = Object.values(allUpdates);
     const title = createPullRequestTitle(
-      Object.values(allUpdates).reduce(
+      ...updatesList.reduce(
         (acc, updates) => acc.concat(updates.map(update => update.name)),
         []
       )
@@ -150,19 +152,19 @@ export default class App {
       stdio: "inherit"
     });
 
-    const { stdout: repositoryUrl } = cp.spawnSync(
+    const { stdout } = cp.spawnSync(
       "git",
       ["remote", "get-url", "--push", "origin"],
       {
         encoding: "utf8"
       }
     );
+    // $FlowFixMe(stdout-is-string)
+    const repositoryUrl: string = stdout;
 
-    console.log("###", "detectHosting", repositoryUrl, "###");
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
     });
-    console.log({ hosting }, hosting.getDefaultBranch);
     const base = await hosting.getDefaultBranch(token, repositoryUrl);
     await hosting.createPullRequest(
       token,
@@ -180,11 +182,6 @@ export default class App {
     }
 
     for (let hosting of hostings) {
-      console.log({
-        url: meta.repository.url,
-        hosting,
-        match: hosting.match(meta.repository.url)
-      });
       if (await hosting.match(meta.repository.url)) {
         return hosting;
       }
