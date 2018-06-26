@@ -17,7 +17,8 @@ export const createPullRequestMessage = (
 ): string =>
   `${Object.entries(allUpdates)
     .map(
-      ([pkgPath, updates]) =>
+      // $FlowFixMe(entries-returns-Updates)
+      ([pkgPath, updates]: [string, Updates]) =>
         `## ${path.basename(pkgPath)}\n\n${updates
           .map(
             update =>

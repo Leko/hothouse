@@ -6,7 +6,8 @@ export default (allUpdates: { [string]: Updates }): string => {
     allUpdates
   )
     .map(
-      ([pkgPath, updates]) =>
+      // $FlowFixMe(entries-returns-Updates)
+      ([pkgPath, updates]: [string, Updates]) =>
         `${path.basename(pkgPath)}:\n${updates
           .map(
             update => `- ${update.name}: ${update.current} -> ${update.latest}`
