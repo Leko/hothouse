@@ -11,7 +11,7 @@
   "scripts": {
     "prepare": "npm run build",
     "build": "../../node_modules/.bin/babel --config-file ../../.babelrc src --out-dir dist",
-    "test": "jest"
+    "test": "../../node_modules/.bin/jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -29,18 +29,20 @@
     "url": "https://github.com/Leko/hothouse/issues"
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
-  "devDependencies": {
-    "babel-jest": "^23.2.0",
-    "chalk": "^2.4.1",
-    "jest": "^23.2.0",
-    "regenerator-runtime": "^0.12.0",
-    "yargs": "^11.0.0"
-  },
+  "devDependencies": {},
   "dependencies": {
     "@octokit/rest": "^15.9.2",
+    "chalk": "^2.4.1",
     "glob": "^7.1.2",
     "minimatch": "^3.0.4",
     "parse-github-repo-url": "^1.4.1",
-    "semver": "^5.5.0"
-  }
+    "semver": "^5.5.0",
+    "yargs": "^11.0.0"
+  },
+  "babel": {
+    "extends": "../../.babelrc"
+  },
+  "collectCoverageFrom": [
+    "src/*.{js,jsx}"
+  ]
 }

@@ -64,3 +64,6 @@ declare interface Hosting {
   ): Promise<string>;
   getDefaultBranch(token: string, repositoryUrl: string): Promise<string>;
 }
+
+// For jest
+declare var test: (string, Function) => void;
