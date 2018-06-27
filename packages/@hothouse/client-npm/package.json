@@ -1,11 +1,13 @@
 {
-  "name": "@hothouse/types",
+  "name": "@hothouse/client-npm",
   "private": true,
   "version": "0.0.3",
-  "description": "Internal types for hothouse",
+  "description": "Handle npm packages with npm",
   "main": "index.js",
   "scripts": {
-    "test": "echo 'Does nothing' && exit 0"
+    "prepare": "npm run build",
+    "build": "../../node_modules/.bin/babel --config-file ../../.babelrc src --out-dir dist",
+    "test": "../../node_modules/.bin/jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -13,7 +15,9 @@
   },
   "keywords": [
     "hothouse",
-    "flowtype"
+    "npm",
+    "package",
+    "manager"
   ],
   "author": "Leko <leko.noor@gmail.com>",
   "license": "MIT",
