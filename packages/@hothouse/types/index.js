@@ -16,7 +16,7 @@ export type Update = {|
 |};
 export type Updates = Array<Update>;
 
-export interface NpmClient {
+export interface PackageManager {
   match(directory: string): Promise<boolean>;
   getUpdates(packageDirectory: string): Promise<Updates>;
   getPackageMeta(packageName: string): Promise<Object>;
@@ -29,7 +29,7 @@ export interface Structure {
   install(
     packageDirectory: string,
     rootDirectory: string,
-    npmClient: NpmClient
+    npmClient: PackageManager
   ): Promise<void>;
 }
 

@@ -23,6 +23,14 @@ npm i -g hothouse
 $ hothouse --help
 ```
 
+### Debug
+
+If you want to debug hothouse, please run with `DEBUG` environment variable like
+
+```
+DEBUG=hothouse* hothouse
+```
+
 ## Contribution
 
 1.  Fork this repo

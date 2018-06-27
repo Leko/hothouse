@@ -3,7 +3,6 @@ import path from "path";
 import cp from "child_process";
 import minimatch from "minimatch";
 import structures, { SinglePackage } from "./Structure";
-import npmClients, { Npm } from "./NpmClient";
 import hostings, { UnknownHosting } from "./Hosting";
 import Package from "./Package";
 import createCommitMessage from "./commitMessage";
@@ -20,7 +19,7 @@ import type {
 
 export default class App {
   structure: Structure;
-  npmClient: PackageManager;
+  pkgManager: PackageManager;
 
   static async detectStructure(directory: string): Promise<Structure> {
     for (let structure of structures) {
@@ -31,18 +30,9 @@ export default class App {
     return new SinglePackage();
   }
 
-  static async detectClient(directory: string): Promise<PackageManager> {
-    for (let npmClient of npmClients) {
-      if (await npmClient.match(directory)) {
-        return npmClient;
-      }
-    }
-    return new Npm();
-  }
-
-  constructor(structure: Structure, npmClient: PackageManager) {
+  constructor(structure: Structure, pkgManager: PackageManager) {
     this.structure = structure;
-    this.npmClient = npmClient;
+    this.pkgManager = pkgManager;
   }
 
   async getPackages(directory: string): Promise<Array<string>> {
@@ -53,7 +43,7 @@ export default class App {
     packageDirectory: string,
     blacklist: Array<string>
   ): Promise<Updates> {
-    const updates = await this.npmClient.getUpdates(packageDirectory);
+    const updates = await this.pkgManager.getUpdates(packageDirectory);
     return updates.filter(update =>
       blacklist.every(name => !minimatch(name, update.name))
     );
@@ -70,7 +60,7 @@ export default class App {
     return this.structure.install(
       packageDirectory,
       rootDirectory,
-      this.npmClient
+      this.pkgManager
     );
   }
 
@@ -121,7 +111,7 @@ export default class App {
           `${update.name}@${update.latest}`
         );
 
-        const meta = await this.npmClient.getPackageMeta(
+        const meta = await this.pkgManager.getPackageMeta(
           `${update.name}@${update.latest}`
         );
         const hosting = await this.detectHosting(meta);
@@ -196,7 +186,7 @@ export default class App {
   }
 
   async getTag(token: string, packageAnnotation: string): Promise<string> {
-    const meta = await this.npmClient.getPackageMeta(packageAnnotation);
+    const meta = await this.pkgManager.getPackageMeta(packageAnnotation);
     const hosting = await this.detectHosting(meta);
     return hosting.shaToTag(token, meta.repository.url, meta.gitHead);
   }

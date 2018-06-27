@@ -3,6 +3,7 @@ import yargs from "yargs";
 import chalk from "chalk";
 import { name, version } from "../package.json";
 import App from "./App";
+import PackageManagerResolver from "./PackageManagerResolver";
 
 const options = yargs
   .version(version)
@@ -31,12 +32,15 @@ const options = yargs
   }).argv;
 
 const main = async (options, cwd) => {
-  const { token, ignore, perPackage } = options;
-  const [strategy, client] = await Promise.all([
-    App.detectStructure(cwd),
-    App.detectClient(cwd)
+  const pkgManagerResolver = new PackageManagerResolver([
+    "@hothouse/client-yarn",
+    "@hothouse/client-npm"
   ]);
-  const app = new App(strategy, client);
+  const pkgManager = pkgManagerResolver.detect(cwd);
+
+  const { token, ignore, perPackage } = options;
+  const [strategy] = await Promise.all([App.detectStructure(cwd)]);
+  const app = new App(strategy, pkgManager);
   const branchName = app.createBranchName();
 
   // FIXME: Parallelize
