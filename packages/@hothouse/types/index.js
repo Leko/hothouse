@@ -57,6 +57,3 @@ export interface Hosting {
   ): Promise<string>;
   getDefaultBranch(token: string, repositoryUrl: string): Promise<string>;
 }
-
-// For jest
-export var test: (string, Function) => void;

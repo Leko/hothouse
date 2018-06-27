@@ -1,0 +1,2 @@
+// For jest
+declare var test: (string, Function) => void;
