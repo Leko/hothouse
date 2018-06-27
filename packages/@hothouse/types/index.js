@@ -1,29 +1,29 @@
 // @flow
 
-declare type Semver = string;
-declare type Outdated = {|
+export type Semver = string;
+export type Outdated = {|
   current: Semver,
   wanted: Semver,
   latest: Semver,
   location: string
 |};
 
-type Update = {|
+export type Update = {|
   name: string,
   current: Semver,
   latest: Semver,
   dev: boolean
 |};
-type Updates = Array<Update>;
+export type Updates = Array<Update>;
 
-declare class Package {
-  pkgJsonPath: string;
-  pkgJson: Object;
-  constructor(pkgJsonPath: string): void;
-  apply(pkgName: string, version: Semver): void;
+export interface NpmClient {
+  match(directory: string): Promise<boolean>;
+  getUpdates(packageDirectory: string): Promise<Updates>;
+  getPackageMeta(packageName: string): Promise<Object>;
+  install(packageDirectory: string): Promise<void>;
 }
 
-declare interface Structure {
+export interface Structure {
   match(directory: string): Promise<boolean>;
   getPackages(directory: string): Promise<Array<string>>;
   install(
@@ -33,14 +33,7 @@ declare interface Structure {
   ): Promise<void>;
 }
 
-declare interface NpmClient {
-  match(directory: string): Promise<boolean>;
-  getUpdates(packageDirectory: string): Promise<Updates>;
-  getPackageMeta(packageName: string): Promise<Object>;
-  install(packageDirectory: string): Promise<void>;
-}
-
-declare interface Hosting {
+export interface Hosting {
   match(repositoryUrl: string): Promise<boolean>;
   shaToTag(token: string, repositoryUrl: string, sha: string): Promise<string>;
   tagToReleaseNote(
@@ -66,4 +59,4 @@ declare interface Hosting {
 }
 
 // For jest
-declare var test: (string, Function) => void;
+export var test: (string, Function) => void;
