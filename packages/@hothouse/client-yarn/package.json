@@ -6,7 +6,7 @@
   "main": "dist/index.js",
   "scripts": {
     "prepare": "npm run build",
-    "build": "../../../node_modules/.bin/babel --config-file ../../../.babelrc src --out-dir dist",
+    "build": "../../../node_modules/.bin/babel src --out-dir dist",
     "test": "../../../node_modules/.bin/jest --coverage"
   },
   "repository": {
@@ -26,9 +26,17 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "dependencies": {
-    "debug": "^3.1.0"
+    "debug": "^3.1.0",
+    "@hothouse/monorepo-lerna": "*",
+    "@hothouse/monorepo-yarn-workspaces": "*"
   },
   "devDependencies": {
     "@hothouse/types": "*"
-  }
+  },
+  "babel": {
+    "extends": "../../../.babelrc"
+  },
+  "collectCoverageFrom": [
+    "src/*.{js,jsx}"
+  ]
 }

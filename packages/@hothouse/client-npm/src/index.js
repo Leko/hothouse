@@ -4,7 +4,7 @@ import path from "path";
 import cp from "child_process";
 import type { PackageManager, Updates } from "@hothouse/types";
 
-export default class Npm implements PackageManager {
+class Npm implements PackageManager {
   async match(directory: string): Promise<boolean> {
     return fs.existsSync(path.join(directory, "package.json"));
   }
@@ -16,22 +16,30 @@ export default class Npm implements PackageManager {
       cwd: packageDirectory,
       encoding: "utf8"
     });
+    if (result.stdout === "") {
+      return [];
+    }
+
     // $FlowFixMe(stdout-is-string)
     const outdated: { [string]: Outdated } = JSON.parse(result.stdout);
     // $FlowFixMe(entries-returns-mixed)
     const outdatedPackages: Array<[string, Outdated]> = Object.entries(
       outdated
     );
-    return outdatedPackages.reduce(
-      (acc, [name, outdated]: [string, Outdated]) =>
-        acc.concat({
-          name,
-          current: outdated.current,
-          latest: outdated.latest,
-          dev: !!(pkg.devDependencies && pkg.devDependencies[name])
-        }),
-      []
-    );
+    return outdatedPackages
+      .filter(
+        ([name, outdated]: [string, Outdated]) => outdated.latest !== "linked"
+      )
+      .reduce(
+        (acc, [name, outdated]: [string, Outdated]) =>
+          acc.concat({
+            name,
+            current: outdated.current,
+            latest: outdated.latest,
+            dev: !!(pkg.devDependencies && pkg.devDependencies[name])
+          }),
+        []
+      );
   }
 
   async install(packageDirectory: string): Promise<void> {
@@ -57,3 +65,5 @@ export default class Npm implements PackageManager {
     return JSON.parse(result.stdout);
   }
 }
+
+module.exports = Npm;

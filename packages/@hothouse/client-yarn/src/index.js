@@ -3,12 +3,13 @@ import fs from "fs";
 import path from "path";
 import cp from "child_process";
 import type { PackageManager, Updates } from "@hothouse/types";
-import { Lerna, YarnWorkspaces } from "../Structure";
+import Lerna from "@hothouse/monorepo-lerna";
+import YarnWorkspaces from "@hothouse/monorepo-yarn-workspaces";
 
 const lerna = new Lerna();
 const yarnWorkspaces = new YarnWorkspaces();
 
-export default class Yarn implements PackageManager {
+class Yarn implements PackageManager {
   async match(directory: string): Promise<boolean> {
     if (await yarnWorkspaces.match(directory)) {
       return true;
@@ -28,22 +29,30 @@ export default class Yarn implements PackageManager {
       cwd: packageDirectory,
       encoding: "utf8"
     });
+    if (result.stdout === "") {
+      return [];
+    }
+
     // $FlowFixMe(stdout-is-string)
     const outdated: { [string]: Outdated } = JSON.parse(result.stdout);
     // $FlowFixMe(entries-returns-mixed)
     const outdatedPackages: Array<[string, Outdated]> = Object.entries(
       outdated
     );
-    return outdatedPackages.reduce(
-      (acc, [name, outdated]: [string, Outdated]) =>
-        acc.concat({
-          name,
-          current: outdated.current,
-          latest: outdated.latest,
-          dev: !!(pkg.devDependencies && pkg.devDependencies[name])
-        }),
-      []
-    );
+    return outdatedPackages
+      .filter(
+        ([name, outdated]: [string, Outdated]) => outdated.latest !== "linked"
+      )
+      .reduce(
+        (acc, [name, outdated]: [string, Outdated]) =>
+          acc.concat({
+            name,
+            current: outdated.current,
+            latest: outdated.latest,
+            dev: !!(pkg.devDependencies && pkg.devDependencies[name])
+          }),
+        []
+      );
   }
 
   async install(packageDirectory: string): Promise<void> {
@@ -69,3 +78,5 @@ export default class Yarn implements PackageManager {
     return JSON.parse(result.stdout);
   }
 }
+
+module.exports = Yarn;

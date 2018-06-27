@@ -1,24 +1,13 @@
 {
-  "name": "@hothouse/client-npm",
-  "private": true,
+  "name": "@hothouse/monorepo-lerna",
   "version": "0.0.3",
-  "description": "Handle npm packages with npm",
-  "main": "dist/index.js",
+  "description": "Handle repository structure with Lerna",
+  "main": "./dist/index.js",
   "scripts": {
     "prepare": "npm run build",
     "build": "../../../node_modules/.bin/babel src --out-dir dist",
     "test": "../../../node_modules/.bin/jest --coverage"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/Leko/hothouse.git"
-  },
-  "keywords": [
-    "hothouse",
-    "npm",
-    "package",
-    "manager"
-  ],
   "author": "Leko <leko.noor@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -26,7 +15,8 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "dependencies": {
-    "debug": "^3.1.0"
+    "debug": "^3.1.0",
+    "glob": "^7.1.2"
   },
   "devDependencies": {
     "@hothouse/types": "*"
