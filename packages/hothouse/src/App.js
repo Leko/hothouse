@@ -11,10 +11,16 @@ import {
   createPullRequestTitle,
   createPullRequestMessage
 } from "./pullRequest";
+import type {
+  Hosting,
+  Structure,
+  PackageManager,
+  Updates
+} from "@hothouse/types";
 
 export default class App {
   structure: Structure;
-  npmClient: NpmClient;
+  npmClient: PackageManager;
 
   static async detectStructure(directory: string): Promise<Structure> {
     for (let structure of structures) {
@@ -25,7 +31,7 @@ export default class App {
     return new SinglePackage();
   }
 
-  static async detectClient(directory: string): Promise<NpmClient> {
+  static async detectClient(directory: string): Promise<PackageManager> {
     for (let npmClient of npmClients) {
       if (await npmClient.match(directory)) {
         return npmClient;
@@ -34,7 +40,7 @@ export default class App {
     return new Npm();
   }
 
-  constructor(structure: Structure, npmClient: NpmClient) {
+  constructor(structure: Structure, npmClient: PackageManager) {
     this.structure = structure;
     this.npmClient = npmClient;
   }

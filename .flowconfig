@@ -3,6 +3,7 @@
 [include]
 
 [libs]
+./type-definition/index.js.flow
 
 [lints]
 

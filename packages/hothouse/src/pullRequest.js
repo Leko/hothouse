@@ -1,5 +1,6 @@
 // @flow
 import path from "path";
+import type { Updates } from "@hothouse/types";
 
 export const createPullRequestTitle = (...packages: Array<string>): string =>
   `Update ${packages.join(", ")} to latest version`;

@@ -1,5 +1,6 @@
 // @flow
 import path from "path";
+import type { Updates } from "@hothouse/types";
 
 export default (allUpdates: { [string]: Updates }): string => {
   return `chore(package): update dependencies to latest version\n\n${Object.entries(

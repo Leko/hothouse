@@ -1,6 +1,7 @@
 // @flow
 import path from "path";
 import glob from "glob";
+import type { Structure, PackageManager } from "@hothouse/types";
 
 export default class YarnWorkspaces implements Structure {
   async match(directory: string): Promise<boolean> {
@@ -20,7 +21,7 @@ export default class YarnWorkspaces implements Structure {
   async install(
     packageDirectory: string,
     rootDirectory: string,
-    npmClient: NpmClient
+    npmClient: PackageManager
   ): Promise<void> {
     await npmClient.install(rootDirectory);
   }

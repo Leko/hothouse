@@ -30,6 +30,9 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "dependencies": {
+    "@hothouse/types": "*",
+    "@hothouse/client-npm": "*",
+    "@hothouse/client-yarn": "*",
     "@octokit/rest": "^15.9.2",
     "chalk": "^2.4.1",
     "glob": "^7.1.2",

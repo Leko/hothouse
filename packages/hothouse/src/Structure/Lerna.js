@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import cp from "child_process";
 import glob from "glob";
+import type { Structure, PackageManager } from "@hothouse/types";
 
 export default class Lerna implements Structure {
   async match(directory: string): Promise<boolean> {
@@ -21,7 +22,7 @@ export default class Lerna implements Structure {
   async install(
     packageDirectory: string,
     rootDirectory: string,
-    npmClient: NpmClient
+    npmClient: PackageManager
   ): Promise<void> {
     const result = cp.spawnSync("npx", ["lerna", "bootstrap"], {
       encoding: "utf8",
