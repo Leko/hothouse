@@ -7,8 +7,11 @@ export default class PackageManagerResolver {
   plugins: Array<PackageManager>;
 
   constructor(pluginNames: Array<string>) {
-    // $FlowFixMe(allow-dynamic-require)
-    this.plugins = pluginNames.map(pluginName => require(pluginName));
+    this.plugins = pluginNames.map(pluginName => {
+      // $FlowFixMe(allow-dynamic-require)
+      const Plugin = require(pluginName);
+      return new Plugin();
+    });
   }
 
   async detect(directory: string): Promise<PackageManager> {
