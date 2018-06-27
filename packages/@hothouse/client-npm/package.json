@@ -6,8 +6,8 @@
   "main": "index.js",
   "scripts": {
     "prepare": "npm run build",
-    "build": "../../node_modules/.bin/babel --config-file ../../.babelrc src --out-dir dist",
-    "test": "../../node_modules/.bin/jest --coverage"
+    "build": "../../../node_modules/.bin/babel --config-file ../../../.babelrc src --out-dir dist",
+    "test": "../../../node_modules/.bin/jest --coverage"
   },
   "repository": {
     "type": "git",
@@ -24,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/Leko/hothouse/issues"
   },
-  "homepage": "https://github.com/Leko/hothouse#readme"
+  "homepage": "https://github.com/Leko/hothouse#readme",
+  "devDependencies": {
+    "@hothouse/types": "*"
+  }
 }
