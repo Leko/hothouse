@@ -6,18 +6,27 @@ import type { PackageManager, Updates } from "@hothouse/types";
 import Lerna from "@hothouse/monorepo-lerna";
 import YarnWorkspaces from "@hothouse/monorepo-yarn-workspaces";
 
+const debug = require("debug")("hothouse:PackageManager:Yarn");
 const lerna = new Lerna();
 const yarnWorkspaces = new YarnWorkspaces();
 
 class Yarn implements PackageManager {
   async match(directory: string): Promise<boolean> {
-    if (await yarnWorkspaces.match(directory)) {
-      return true;
+    try {
+      if (await yarnWorkspaces.match(directory)) {
+        return true;
+      }
+    } catch (e) {
+      debug("Error occured in match:", e.stack);
     }
-    if (await lerna.match(directory)) {
-      // $FlowFixMe(dynamic-require)
-      const settings = require(path.join(directory, "lerna.json"));
-      return settings.npmCilent === "yarn";
+    try {
+      if (await lerna.match(directory)) {
+        // $FlowFixMe(dynamic-require)
+        const settings = require(path.join(directory, "lerna.json"));
+        return settings.npmClient === "yarn";
+      }
+    } catch (e) {
+      debug("Error occured in match:", e.stack);
     }
     return fs.existsSync(path.join(directory, "yarn.lock"));
   }
