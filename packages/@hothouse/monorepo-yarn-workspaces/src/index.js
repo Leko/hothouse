@@ -8,6 +8,9 @@ const debug = require("debug")("hothouse:Structure:YarnWorkspaces");
 
 class YarnWorkspaces implements Structure {
   async match(directory: string): Promise<boolean> {
+    if (!fs.existsSync(path.join(directory, "package.json"))) {
+      return false;
+    }
     // $FlowFixMe(dynamic-require)
     const pkg = require(path.join(directory, "package.json"));
     return !!pkg.workspaces;
@@ -31,6 +34,7 @@ class YarnWorkspaces implements Structure {
         return isPackage;
       });
   }
+
   async install(
     packageDirectory: string,
     rootDirectory: string,
