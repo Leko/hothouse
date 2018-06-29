@@ -1,6 +1,8 @@
 {
   "name": "@hothouse/monorepo-yarn-workspaces",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.5",
   "description": "Handle repository structure with Yarn workspaces",
   "main": "./dist/index.js",

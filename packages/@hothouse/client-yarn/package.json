@@ -1,6 +1,8 @@
 {
   "name": "@hothouse/client-yarn",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.5",
   "description": "Handle npm packages with Yarn",
   "main": "dist/index.js",
