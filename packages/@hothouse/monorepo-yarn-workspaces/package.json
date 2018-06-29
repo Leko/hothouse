@@ -1,6 +1,6 @@
 {
   "name": "@hothouse/monorepo-yarn-workspaces",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Handle repository structure with Yarn workspaces",
   "main": "./dist/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "glob": "^7.1.2"
   },
   "devDependencies": {
-    "@hothouse/types": "^0.1.1"
+    "@hothouse/types": "^0.1.2"
   },
   "babel": {
     "extends": "../../../.babelrc"
