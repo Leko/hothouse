@@ -6,7 +6,6 @@ import type { PackageManager, Updates } from "@hothouse/types";
 import Lerna from "@hothouse/monorepo-lerna";
 import YarnWorkspaces from "@hothouse/monorepo-yarn-workspaces";
 
-const debug = require("debug")("hothouse:PackageManager:Yarn");
 const lerna = new Lerna();
 const yarnWorkspaces = new YarnWorkspaces();
 
