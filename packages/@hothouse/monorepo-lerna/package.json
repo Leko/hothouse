@@ -1,6 +1,6 @@
 {
   "name": "@hothouse/monorepo-lerna",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Handle repository structure with Lerna",
   "main": "./dist/index.js",
   "scripts": {
@@ -19,7 +19,7 @@
     "glob": "^7.1.2"
   },
   "devDependencies": {
-    "@hothouse/types": "^0.1.0"
+    "@hothouse/types": "^0.1.1"
   },
   "babel": {
     "extends": "../../../.babelrc"
