@@ -7,6 +7,9 @@
   "scripts": {
     "precommit": "pretty-quick --staged",
     "bootstrap": "lerna bootstrap",
+    "release": "lerna publish --force-publish=*",
+    "prerelease": "npm run bootstrap",
+    "postrelease": "dotenv lerna-changelog",
     "build": "lerna run build",
     "test": "lerna run test",
     "lint": "eslint --cache '**/{src,test}/**/*.js'",
@@ -28,6 +31,16 @@
     "url": "https://github.com/Leko/hothouse/issues"
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
+  "changelog": {
+    "labels": {
+      "breaking": "Type: Breaking Change",
+      "feature": "Type: Feature",
+      "bug": "Type: Bug",
+      "enhancement": "Type: Maintenance",
+      "documentation": "Type: Documentation",
+      "internal": "Type: Refactoring"
+    }
+  },
   "devDependencies": {
     "@babel/cli": "^7.0.0-beta.51",
     "@babel/core": "^7.0.0-beta.51",
@@ -39,6 +52,7 @@
     "babel-core": "^7.0.0-bridge.0",
     "babel-eslint": "^8.2.5",
     "babel-jest": "^23.2.0",
+    "dotenv-cli": "^1.4.0",
     "eslint": "^5.0.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-standard": "^11.0.0",
@@ -51,6 +65,7 @@
     "husky": "^0.14.3",
     "jest": "^23.2.0",
     "lerna": "^2.9.0",
+    "lerna-changelog": "^0.8.0",
     "prettier": "^1.13.5",
     "pretty-quick": "^1.6.0",
     "regenerator-runtime": "^0.12.0"
