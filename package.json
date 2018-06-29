@@ -30,7 +30,6 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "changelog": {
-    "ignoreCommitters": true,
     "labels": {
       "Type: Breaking Change": "Breaking Change",
       "Type: Feature": "Feature",
