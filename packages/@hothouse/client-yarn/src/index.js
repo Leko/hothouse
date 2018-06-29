@@ -12,22 +12,15 @@ const yarnWorkspaces = new YarnWorkspaces();
 
 class Yarn implements PackageManager {
   async match(directory: string): Promise<boolean> {
-    try {
-      if (await yarnWorkspaces.match(directory)) {
-        return true;
-      }
-    } catch (e) {
-      debug("Error occured in match:", e.stack);
+    if (await yarnWorkspaces.match(directory)) {
+      return true;
     }
-    try {
-      if (await lerna.match(directory)) {
-        // $FlowFixMe(dynamic-require)
-        const settings = require(path.join(directory, "lerna.json"));
-        return settings.npmClient === "yarn";
-      }
-    } catch (e) {
-      debug("Error occured in match:", e.stack);
+    if (await lerna.match(directory)) {
+      // $FlowFixMe(dynamic-require)
+      const settings = require(path.join(directory, "lerna.json"));
+      return settings.npmClient === "yarn";
     }
+
     return fs.existsSync(path.join(directory, "yarn.lock"));
   }
 
