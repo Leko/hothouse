@@ -1,7 +1,7 @@
 {
   "name": "@hothouse/client-npm",
   "private": true,
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Handle npm packages with npm",
   "main": "dist/index.js",
   "scripts": {
@@ -29,7 +29,7 @@
     "debug": "^3.1.0"
   },
   "devDependencies": {
-    "@hothouse/types": "*"
+    "@hothouse/types": "^0.1.0"
   },
   "babel": {
     "extends": "../../../.babelrc"
