@@ -1,6 +1,8 @@
 {
   "name": "@hothouse/client-npm",
-  "private": true,
+  "publishConfig": {
+    "access": "public"
+  },
   "version": "0.1.5",
   "description": "Handle npm packages with npm",
   "main": "dist/index.js",
