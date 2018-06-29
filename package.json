@@ -7,9 +7,7 @@
   "scripts": {
     "precommit": "pretty-quick --staged",
     "bootstrap": "lerna bootstrap",
-    "release": "lerna publish --force-publish=*",
-    "prerelease": "npm run bootstrap",
-    "postrelease": "dotenv lerna-changelog",
+    "release": "./scripts/release",
     "build": "lerna run build",
     "test": "lerna run test",
     "lint": "eslint --cache '**/{src,test}/**/*.js'",
@@ -33,12 +31,12 @@
   "homepage": "https://github.com/Leko/hothouse#readme",
   "changelog": {
     "labels": {
-      "breaking": "Type: Breaking Change",
-      "feature": "Type: Feature",
-      "bug": "Type: Bug",
-      "enhancement": "Type: Maintenance",
-      "documentation": "Type: Documentation",
-      "internal": "Type: Refactoring"
+      "Type: Breaking Change": "Breaking Change",
+      "Type: Feature": "Feature",
+      "Type: Bug": "Bug",
+      "Type: Maintenance": "Maintenance",
+      "Type: Documentation": "Documentation",
+      "Type: Refactoring": "Refactoring"
     }
   },
   "devDependencies": {
