@@ -10,23 +10,32 @@ const debug = require("debug")("hothouse:cli");
 
 const main = async (options: CLIOptions, cwd) => {
   debug(`CLI options are:`, options);
-  const { token, ignore, perPackage, dryRun } = options;
-
-  const pkgManagerResolver = new PackageManagerResolver([
-    "@hothouse/client-yarn",
-    "@hothouse/client-npm"
-  ]);
-  const structureResolver = new RepositoryStructureResolver([
-    "@hothouse/monorepo-yarn-workspaces",
-    "@hothouse/monorepo-lerna",
-    "./SinglePackage"
-  ]);
-
-  const packageManager = await pkgManagerResolver.detect(cwd);
-  const repositoryStructure = await structureResolver.detect(cwd);
-  const engine = new Engine({
+  const {
+    token,
+    ignore,
+    perPackage,
+    dryRun,
     packageManager,
-    repositoryStructure,
+    repositoryStructure
+  } = options;
+
+  const pkgManagerResolver = new PackageManagerResolver(
+    [packageManager, "@hothouse/client-yarn", "@hothouse/client-npm"].filter(
+      plugin => !!plugin
+    )
+  );
+  const structureResolver = new RepositoryStructureResolver(
+    [
+      repositoryStructure,
+      "@hothouse/monorepo-yarn-workspaces",
+      "@hothouse/monorepo-lerna",
+      "./SinglePackage"
+    ].filter(plugin => !!plugin)
+  );
+
+  const engine = new Engine({
+    packageManager: await pkgManagerResolver.detect(cwd),
+    repositoryStructure: await structureResolver.detect(cwd),
     dryRun
   });
   const branchName = engine.createBranchName();
