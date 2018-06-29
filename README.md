@@ -21,6 +21,20 @@ npm i -g hothouse
 
 ```
 $ hothouse --help
+$ hothouse -t {GITHUB_PERSONAL_TOKEN}
+```
+
+Please create a new [personal access token](https://github.com/settings/tokens/new).
+`hothouse` need to permission `public_repo`. And use it with `--token` option.
+
+If your packages depends on private repository, please add permission `repo` (Full control of private repositories).
+
+### Debug
+
+If you want to debug hothouse, please run with `DEBUG` environment variable like
+
+```
+DEBUG=hothouse* hothouse
 ```
 
 ## Contribution

@@ -54,6 +54,5 @@
     "prettier": "^1.13.5",
     "pretty-quick": "^1.6.0",
     "regenerator-runtime": "^0.12.0"
-  },
-  "dependencies": {}
+  }
 }

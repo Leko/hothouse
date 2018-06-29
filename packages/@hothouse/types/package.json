@@ -1,0 +1,24 @@
+{
+  "name": "@hothouse/types",
+  "private": true,
+  "version": "0.0.3",
+  "description": "Internal types for hothouse",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo 'Does nothing' && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Leko/hothouse.git"
+  },
+  "keywords": [
+    "hothouse",
+    "flowtype"
+  ],
+  "author": "Leko <leko.noor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Leko/hothouse/issues"
+  },
+  "homepage": "https://github.com/Leko/hothouse#readme"
+}

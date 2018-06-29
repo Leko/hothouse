@@ -1,4 +1,6 @@
 // @flow
+import type { Hosting } from "@hothouse/types";
+
 export default class UnknownHosting implements Hosting {
   async match(repositoryUrl: string): Promise<boolean> {
     return true;

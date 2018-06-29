@@ -1,0 +1,30 @@
+{
+  "name": "@hothouse/monorepo-yarn-workspaces",
+  "version": "0.0.3",
+  "description": "Handle repository structure with Yarn workspaces",
+  "main": "./dist/index.js",
+  "scripts": {
+    "prepare": "npm run build",
+    "build": "../../../node_modules/.bin/babel src --out-dir dist",
+    "test": "../../../node_modules/.bin/jest --coverage"
+  },
+  "author": "Leko <leko.noor@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Leko/hothouse/issues"
+  },
+  "homepage": "https://github.com/Leko/hothouse#readme",
+  "dependencies": {
+    "debug": "^3.1.0",
+    "glob": "^7.1.2"
+  },
+  "devDependencies": {
+    "@hothouse/types": "*"
+  },
+  "babel": {
+    "extends": "../../../.babelrc"
+  },
+  "collectCoverageFrom": [
+    "src/*.{js,jsx}"
+  ]
+}

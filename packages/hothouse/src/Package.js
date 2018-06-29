@@ -1,6 +1,7 @@
 // @flow
 import fs from "fs";
 import semver from "semver";
+import type { Update } from "@hothouse/types";
 
 export default class Package {
   pkgJsonPath: string;

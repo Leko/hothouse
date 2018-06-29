@@ -1,6 +1,7 @@
 // @flow
 import parseGithubRepoUrl from "parse-github-repo-url";
 import octokit from "@octokit/rest";
+import type { Hosting } from "@hothouse/types";
 
 const client = octokit();
 

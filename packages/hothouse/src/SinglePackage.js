@@ -1,8 +1,9 @@
 // @flow
 import fs from "fs";
 import path from "path";
+import type { Structure, PackageManager } from "@hothouse/types";
 
-export default class SinglePackage implements Structure {
+class SinglePackage implements Structure {
   async match(directory: string): Promise<boolean> {
     return fs.existsSync(path.join(directory, "package.json"));
   }
@@ -14,8 +15,10 @@ export default class SinglePackage implements Structure {
   async install(
     packageDirectory: string,
     rootDirectory: string,
-    npmClient: NpmClient
+    npmClient: PackageManager
   ): Promise<void> {
     await npmClient.install(packageDirectory);
   }
 }
+
+module.exports = SinglePackage;

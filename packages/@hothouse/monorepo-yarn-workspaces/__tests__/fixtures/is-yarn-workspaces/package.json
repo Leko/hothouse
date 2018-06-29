@@ -1,0 +1,15 @@
+{
+  "name": "is-yarn-workspaces",
+  "version": "1.0.0",
+  "description": "Fixture of empty yarn workspaces projects",
+  "main": "index.js",
+  "workspaces": [
+    "workspace-a",
+    "workspace-b"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

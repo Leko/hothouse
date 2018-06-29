@@ -1,11 +1,13 @@
 // @flow
 import path from "path";
+import type { Updates } from "@hothouse/types";
+import type UpdateChunk from "./UpdateChunk";
 
 export const createPullRequestTitle = (...packages: Array<string>): string =>
   `Update ${packages.join(", ")} to latest version`;
 
 export const createPullRequestMessage = (
-  allUpdates: { [string]: Updates },
+  updateChunks: UpdateChunk,
   updateDetails: {
     [string]: {
       currentTag: string,
@@ -15,7 +17,7 @@ export const createPullRequestMessage = (
     }
   }
 ): string =>
-  `${Object.entries(allUpdates)
+  `${Object.entries(updateChunks.allUpdates)
     .map(
       // $FlowFixMe(entries-returns-Updates)
       ([pkgPath, updates]: [string, Updates]) =>

@@ -1,78 +1,74 @@
 #!/usr/bin/env node
-import yargs from "yargs";
 import chalk from "chalk";
-import { name, version } from "../package.json";
-import App from "./App";
+import Engine from "./Engine";
+import PackageManagerResolver from "./PackageManagerResolver";
+import RepositoryStructureResolver from "./RepositoryStructureResolver";
+import { split } from "./UpdateChunk";
+import cliOptions, { type CLIOptions } from "./cliOptions";
 
-const options = yargs
-  .version(version)
-  .usage(`${name} -t xxxxx`)
-  .option("ignore", {
-    type: "string",
-    description: "Comma separated package names to ignore updates",
-    coerce: (ignore: string) =>
-      ignore
-        .split(",")
-        .map(pkg => pkg.trim())
-        .filter(pkg => !!pkg),
-    default: ""
-  })
-  .option("per-package", {
-    alias: "p",
-    required: false,
-    type: "boolean",
-    description: "Send pull requests per package"
-  })
-  .option("token", {
-    alias: "t",
-    required: true,
-    type: "string",
-    description: "Access token of GitHub"
-  }).argv;
+const debug = require("debug")("hothouse:cli");
 
-const main = async (options, cwd) => {
-  const { token, ignore, perPackage } = options;
-  const [strategy, client] = await Promise.all([
-    App.detectStructure(cwd),
-    App.detectClient(cwd)
-  ]);
-  const app = new App(strategy, client);
-  const branchName = app.createBranchName();
+const main = async (options: CLIOptions, cwd) => {
+  debug(`CLI options are:`, options);
+  const {
+    token,
+    ignore,
+    perPackage,
+    dryRun,
+    packageManager,
+    repositoryStructure
+  } = options;
+
+  const pkgManagerResolver = new PackageManagerResolver(
+    [packageManager, "@hothouse/client-yarn", "@hothouse/client-npm"].filter(
+      plugin => !!plugin
+    )
+  );
+  const structureResolver = new RepositoryStructureResolver(
+    [
+      repositoryStructure,
+      "@hothouse/monorepo-yarn-workspaces",
+      "@hothouse/monorepo-lerna",
+      "./SinglePackage"
+    ].filter(plugin => !!plugin)
+  );
+
+  const engine = new Engine({
+    packageManager: await pkgManagerResolver.detect(cwd),
+    repositoryStructure: await structureResolver.detect(cwd),
+    dryRun
+  });
+  const branchName = engine.createBranchName();
 
   // FIXME: Parallelize
   const allUpdates = {};
-  for (let pkg of await app.getPackages(cwd)) {
-    const updates = await app.getUpdates(pkg, ignore);
-    if (updates.length === 0) {
-      continue;
-    }
-    await app.applyUpdates(pkg, cwd, updates);
-    if (perPackage) {
-      for (let update of updates) {
-        await app.commit(
-          cwd,
-          { [pkg]: [update] },
-          `${branchName}-${update.name}`
-        );
-        await app.createPullRequest(
-          token,
-          { [update.name]: updates },
-          `${branchName}-${update.name}`
-        );
-      }
-    } else {
-      allUpdates[pkg] = updates;
-    }
+  for (let localPackage of await engine.getPackages(cwd)) {
+    const updates = await engine.getUpdates(localPackage, ignore);
+    allUpdates[localPackage] = updates;
   }
   if (Object.keys(allUpdates).length === 0) {
     return;
   }
 
-  await app.commit(cwd, allUpdates, branchName);
-  await app.createPullRequest(token, allUpdates, branchName);
+  const updateChunks = split(allUpdates, perPackage);
+  debug(`Updates are:`, allUpdates);
+  debug(`UpdateChunks are:`, updateChunks);
+
+  for (let updateChunk of updateChunks) {
+    for (let localPackage of updateChunk.getPackagePaths()) {
+      await engine.applyUpdates(
+        localPackage,
+        cwd,
+        updateChunk.getUpdatesBy(localPackage)
+      );
+    }
+    // FIXME: refactor structure
+    await engine.commit(cwd, updateChunk, branchName);
+    await engine.createPullRequest(token, updateChunk, branchName);
+  }
 };
 
-main(options, process.cwd()).catch(e => {
+main(cliOptions.argv, process.cwd()).catch(e => {
   console.log(chalk.red(e.stack)); // eslint-disable-line no-console
   process.exit(1);
 });

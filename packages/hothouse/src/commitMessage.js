@@ -1,9 +1,11 @@
 // @flow
 import path from "path";
+import type { Updates } from "@hothouse/types";
+import type UpdateChunk from "./UpdateChunk";
 
-export default (allUpdates: { [string]: Updates }): string => {
+export default (updateChunk: UpdateChunk): string => {
   return `chore(package): update dependencies to latest version\n\n${Object.entries(
-    allUpdates
+    updateChunk.allUpdates
   )
     .map(
       // $FlowFixMe(entries-returns-Updates)

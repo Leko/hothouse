@@ -1,0 +1,8 @@
+{
+  "name": "is-yarn-workspaces",
+  "version": "1.0.0",
+  "description": "Fixture of empty basic npm package",
+  "main": "index.js",
+  "author": "",
+  "license": "ISC"
+}
