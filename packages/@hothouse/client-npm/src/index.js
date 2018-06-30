@@ -45,8 +45,7 @@ class Npm implements PackageManager {
   async install(packageDirectory: string): Promise<void> {
     const result = cp.spawnSync("npm", ["install"], {
       cwd: packageDirectory,
-      encoding: "utf8",
-      stdio: "inherit"
+      encoding: "utf8"
     });
     if (result.error) {
       throw result.error;
