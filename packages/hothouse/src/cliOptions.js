@@ -24,6 +24,13 @@ export default yargs
       "Send pull requests per package\nIf you want to send unified pull requests, please specify --no-per-package",
     default: true
   })
+  .option("bail", {
+    alias: "b",
+    type: "boolean",
+    description:
+      "Continue another updates when error occured during updating package",
+    default: true
+  })
   .option("package-manager", {
     group: "Advanced",
     type: "string",

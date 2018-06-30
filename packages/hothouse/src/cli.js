@@ -12,6 +12,7 @@ const main = async (options: CLIOptions, cwd) => {
   debug(`CLI options are:`, options);
   const {
     token,
+    bail,
     ignore,
     perPackage,
     dryRun,
@@ -56,11 +57,17 @@ const main = async (options: CLIOptions, cwd) => {
 
   for (let updateChunk of updateChunks) {
     for (let localPackage of updateChunk.getPackagePaths()) {
-      await engine.applyUpdates(
-        localPackage,
-        cwd,
-        updateChunk.getUpdatesBy(localPackage)
-      );
+      try {
+        await engine.applyUpdates(
+          localPackage,
+          cwd,
+          updateChunk.getUpdatesBy(localPackage)
+        );
+      } catch (error) {
+        if (!bail) {
+          throw error;
+        }
+      }
     }
     // FIXME: refactor structure
     await engine.commit(cwd, updateChunk, branchName);
