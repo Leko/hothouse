@@ -1,9 +1,14 @@
 // @flow
-import parseGithubRepoUrl from "parse-github-repo-url";
+import parse from "git-url-parse";
 import octokit from "@octokit/rest";
 import type { Hosting } from "@hothouse/types";
 
 const client = octokit();
+
+export const parseRepositoryUrl = (url: string): [string, string] => {
+  const { owner, name } = parse(url);
+  return [owner, name];
+};
 
 export default class GitHub implements Hosting {
   async match(repositoryUrl: string): Promise<boolean> {
@@ -15,7 +20,7 @@ export default class GitHub implements Hosting {
     repositoryUrl: string,
     sha: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     // /repos/yargs/yargs/git/tags/57a39cb8fe5051b9d9bb87fb789cc0d6d2363ce6
     client.authenticate({
       type: "token",
@@ -48,7 +53,7 @@ export default class GitHub implements Hosting {
     repositoryUrl: string,
     tag: string
   ): Promise<?string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     try {
       return await client.repos.getReleaseByTag({ owner, repo, tag });
     } catch (error) {
@@ -65,7 +70,7 @@ export default class GitHub implements Hosting {
     base: string,
     head: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     const result = await client.repos.compareCommits({
       owner,
       repo,
@@ -83,7 +88,7 @@ export default class GitHub implements Hosting {
     title: string,
     body: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     const result = await client.pullRequests.create({
       owner,
       repo,
@@ -99,7 +104,7 @@ export default class GitHub implements Hosting {
     token: string,
     repositoryUrl: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     const result = await client.repos.get({ owner, repo });
     return result.data.default_branch;
   }
