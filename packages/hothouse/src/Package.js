@@ -3,6 +3,14 @@ import fs from "fs";
 import semver from "semver";
 import type { Update } from "@hothouse/types";
 
+export const replaceSemver = (
+  fromVersion: string,
+  toVersion: string
+): string => {
+  const current = semver.coerce(fromVersion).version;
+  return fromVersion.replace(current, toVersion);
+};
+
 export default class Package {
   pkgJsonPath: string;
   pkgJson: Object;
@@ -17,9 +25,8 @@ export default class Package {
     const deps = update.dev
       ? this.pkgJson.devDependencies
       : this.pkgJson.dependencies;
-    const current = semver.coerce(deps[update.name]).version;
 
-    deps[update.name] = deps[update.name].replace(current, update.latest);
+    deps[update.name] = replaceSemver(deps[update.name], update.latest);
   }
 
   async save(): Promise<void> {
