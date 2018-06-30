@@ -1,7 +1,7 @@
 /* eslint-env jest */
 // @flow
 import assert from "assert";
-import Package from "../src/Package";
+import Package, { replaceSemver } from "../src/Package";
 
 test("Package can instantiate with valid package path", () => {
   const pkg = new Package("../package.json");
@@ -9,4 +9,14 @@ test("Package can instantiate with valid package path", () => {
 });
 test("Package cannot instantiate with invalid package path", () => {
   assert.throws(() => new Package("./not-exists-path.json"));
+});
+
+test("replaceSemver can replace exact semver", () => {
+  assert.equal(replaceSemver("1.2.3", "4.5.6"), "4.5.6");
+});
+test("replaceSemver can replace tilde semver range", () => {
+  assert.equal(replaceSemver("~0.11.3", "0.12.0"), "~0.12.0");
+});
+test("replaceSemver can replace hat semver range", () => {
+  assert.equal(replaceSemver("^1.13.1", "2.0.0"), "^2.0.0");
 });
