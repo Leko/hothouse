@@ -1,5 +1,5 @@
 // @flow
-import parseGithubRepoUrl from "parse-github-repo-url";
+import parse from "git-url-parse";
 import octokit from "@octokit/rest";
 import type { Hosting } from "@hothouse/types";
 
@@ -15,7 +15,7 @@ export default class GitHub implements Hosting {
     repositoryUrl: string,
     sha: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const { owner, name } = parse(repositoryUrl);
     // /repos/yargs/yargs/git/tags/57a39cb8fe5051b9d9bb87fb789cc0d6d2363ce6
     client.authenticate({
       type: "token",
@@ -27,7 +27,7 @@ export default class GitHub implements Hosting {
     while (1) {
       const res = await client.repos.getTags({
         owner,
-        repo,
+        repo: name,
         per_page: PER_PAGE,
         page
       });
@@ -48,9 +48,9 @@ export default class GitHub implements Hosting {
     repositoryUrl: string,
     tag: string
   ): Promise<?string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const { owner, name } = parse(repositoryUrl);
     try {
-      return await client.repos.getReleaseByTag({ owner, repo, tag });
+      return await client.repos.getReleaseByTag({ owner, repo: name, tag });
     } catch (error) {
       if (JSON.parse(error.message).message === "Not Found") {
         return null;
@@ -65,10 +65,10 @@ export default class GitHub implements Hosting {
     base: string,
     head: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const { owner, name } = parse(repositoryUrl);
     const result = await client.repos.compareCommits({
       owner,
-      repo,
+      repo: name,
       base,
       head
     });
@@ -83,10 +83,10 @@ export default class GitHub implements Hosting {
     title: string,
     body: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
+    const { owner, name } = parse(repositoryUrl);
     const result = await client.pullRequests.create({
       owner,
-      repo,
+      repo: name,
       base,
       head,
       title,
@@ -99,8 +99,8 @@ export default class GitHub implements Hosting {
     token: string,
     repositoryUrl: string
   ): Promise<string> {
-    const [owner, repo] = parseGithubRepoUrl(repositoryUrl);
-    const result = await client.repos.get({ owner, repo });
+    const { owner, name } = parse(repositoryUrl);
+    const result = await client.repos.get({ owner, repo: name });
     return result.data.default_branch;
   }
 }
