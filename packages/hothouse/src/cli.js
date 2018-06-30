@@ -61,11 +61,7 @@ const main = async (options: CLIOptions, cwd) => {
     for (let localPackage of updateChunk.getPackagePaths()) {
       try {
         const updates = updateChunk.getUpdatesBy(localPackage);
-        await engine.applyUpdates(
-          localPackage,
-          cwd,
-          updateChunk.getUpdatesBy(updates)
-        );
+        await engine.applyUpdates(localPackage, cwd, updates);
       } catch (error) {
         if (!bail) {
           throw error;
