@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+import path from "path";
 import chalk from "chalk";
 import Engine from "./Engine";
 import PackageManagerResolver from "./PackageManagerResolver";
 import RepositoryStructureResolver from "./RepositoryStructureResolver";
 import { split } from "./UpdateChunk";
+import { bugs } from "../package.json";
 import cliOptions, { type CLIOptions } from "./cliOptions";
 
 const debug = require("debug")("hothouse:cli");
@@ -58,15 +60,23 @@ const main = async (options: CLIOptions, cwd) => {
   for (let updateChunk of updateChunks) {
     for (let localPackage of updateChunk.getPackagePaths()) {
       try {
+        const updates = updateChunk.getUpdatesBy(localPackage);
         await engine.applyUpdates(
           localPackage,
           cwd,
-          updateChunk.getUpdatesBy(localPackage)
+          updateChunk.getUpdatesBy(updates)
         );
       } catch (error) {
         if (!bail) {
           throw error;
         }
+        console.error(
+          `An error occured during update ${path.basename(
+            localPackage
+          )}.\nIt's internal bug.\nPlease report issue from here: ${
+            bugs.url
+          }\n\n${error.stack}`
+        );
       }
     }
     // FIXME: refactor structure
