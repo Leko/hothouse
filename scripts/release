@@ -14,7 +14,7 @@ LATEST_TAG=v$LATEST_VERSION
 
 $(npm bin)/dotenv $(npm bin)/lerna-changelog -- \
   --from=$PREVIOUS_TAG \
-  > .release_note/$LATEST_TAG.md
+  | sed 's/^## //' > .release_note/$LATEST_TAG.md
 
 cat .release_note/$LATEST_TAG.md
 hub release create -F .release_note/$LATEST_TAG.md $LATEST_TAG
