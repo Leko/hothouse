@@ -8,7 +8,6 @@
     "precommit": "pretty-quick --staged",
     "bootstrap": "lerna bootstrap",
     "release": "make publish",
-    "build": "lerna run build",
     "test": "lerna run test",
     "lint": "eslint --cache '**/{src,test}/**/*.js'",
     "flow": "flow --show-all-errors"
