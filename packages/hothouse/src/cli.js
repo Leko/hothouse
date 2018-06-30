@@ -70,6 +70,7 @@ const main = async (options: CLIOptions, cwd) => {
         if (!bail) {
           throw error;
         }
+        // eslint-disable-next-line no-console
         console.error(
           `An error occured during update ${path.basename(
             localPackage
