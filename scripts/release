@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -eux
+
+mkdir -p .release_note
+npm run bootstrap
+
+PREVIOUS_VERSION=$(jq -r .version lerna.json)
+PREVIOUS_TAG=v$PREVIOUS_VERSION
+
+lerna publish --force-publish=*
+
+LATEST_VERSION=$(jq -r .version lerna.json)
+LATEST_TAG=v$LATEST_VERSION
+
+$(npm bin)/dotenv $(npm bin)/lerna-changelog -- \
+  --from=$PREVIOUS_TAG \
+  | sed 's/^## //' > .release_note/$LATEST_TAG.md
+
+cat .release_note/$LATEST_TAG.md
+hub release create -F .release_note/$LATEST_TAG.md $LATEST_TAG
