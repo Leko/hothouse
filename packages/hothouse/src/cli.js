@@ -1,9 +1,11 @@
 #!/usr/bin/env node
+import path from "path";
 import chalk from "chalk";
 import Engine from "./Engine";
 import PackageManagerResolver from "./PackageManagerResolver";
 import RepositoryStructureResolver from "./RepositoryStructureResolver";
 import { split } from "./UpdateChunk";
+import { bugs } from "../package.json";
 import cliOptions, { type CLIOptions } from "./cliOptions";
 
 const debug = require("debug")("hothouse:cli");
@@ -12,6 +14,7 @@ const main = async (options: CLIOptions, cwd) => {
   debug(`CLI options are:`, options);
   const {
     token,
+    bail,
     ignore,
     perPackage,
     dryRun,
@@ -56,11 +59,26 @@ const main = async (options: CLIOptions, cwd) => {
 
   for (let updateChunk of updateChunks) {
     for (let localPackage of updateChunk.getPackagePaths()) {
-      await engine.applyUpdates(
-        localPackage,
-        cwd,
-        updateChunk.getUpdatesBy(localPackage)
-      );
+      try {
+        const updates = updateChunk.getUpdatesBy(localPackage);
+        await engine.applyUpdates(
+          localPackage,
+          cwd,
+          updateChunk.getUpdatesBy(updates)
+        );
+      } catch (error) {
+        if (!bail) {
+          throw error;
+        }
+        // eslint-disable-next-line no-console
+        console.error(
+          `An error occured during update ${path.basename(
+            localPackage
+          )}.\nIt's internal bug.\nPlease report issue from here: ${
+            bugs.url
+          }\n\n${error.stack}`
+        );
+      }
     }
     // FIXME: refactor structure
     await engine.commit(cwd, updateChunk, branchName);
