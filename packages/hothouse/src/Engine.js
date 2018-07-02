@@ -95,8 +95,8 @@ export default class Engine {
 
   createBranchName(): string {
     const now = new Date();
-    const branchName = `hothouse-update-${now.getFullYear()}${now.getMonth() +
-      1}${now.getDate()}${now.getHours()}${now.getMinutes()}${now.getSeconds()}${now.getMilliseconds()}`;
+    const branchName = `hothouse-${now.getFullYear()}${now.getMonth() +
+      1}${now.getDate()}`;
     debug(`Branch name created: ${branchName} with ${now.toISOString()}`);
     return branchName;
   }
@@ -132,8 +132,9 @@ export default class Engine {
   async createPullRequest(
     token: string,
     updateChunk: UpdateChunk,
-    branchName: string
+    branchNameOrigin: string
   ): Promise<void> {
+    const branchName = `${branchNameOrigin}-${updateChunk.slugify()}`;
     // FIXME: Parallelise
     const changes: UpdateDetails = [];
     for (let pkgPath in updateChunk.allUpdates) {
