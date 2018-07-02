@@ -230,7 +230,7 @@ export default class Engine {
     try {
       const meta = await this.packageManager.getPackageMeta(packageAnnotation);
       const hosting = await this.detectHosting(meta);
-      return hosting.shaToTag(token, meta.repository.url, meta.gitHead);
+      return await hosting.shaToTag(token, meta.repository.url, meta.gitHead);
     } catch (error) {
       debug(
         `An error occured during fetch compare url in ${packageName}@${version}:`,
