@@ -1,4 +1,5 @@
 // @flow
+import crypto from "crypto";
 import type { Updates } from "@hothouse/types";
 
 export default class UpdateChunk {
@@ -17,6 +18,15 @@ export default class UpdateChunk {
       throw new Error(`Cannot find path: ${packagePath}`);
     }
     return this.allUpdates[packagePath];
+  }
+
+  slugify(): string {
+    const jsonStr = JSON.stringify(this.allUpdates);
+    return crypto
+      .createHash("md5")
+      .update(jsonStr)
+      .digest("hex")
+      .slice(0, 10);
   }
 }
 
