@@ -35,4 +35,7 @@ export const createPullRequestMessage = (
 ): string =>
   updateDetails
     .map(detail => Mustache.render(bodyTemplate, detail))
+    .concat([
+      "Powered by [hothouse](https://github.com/Leko/hothouse) :honeybee:"
+    ])
     .join("\n\n----------------------------------------\n\n");
