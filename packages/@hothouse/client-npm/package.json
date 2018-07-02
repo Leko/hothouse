@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "Handle npm packages with npm",
   "main": "dist/index.js",
   "scripts": {
@@ -31,7 +31,7 @@
     "debug": "^3.1.0"
   },
   "devDependencies": {
-    "@hothouse/types": "^0.1.31"
+    "@hothouse/types": "^0.1.32"
   },
   "babel": {
     "extends": "../../../.babelrc"
