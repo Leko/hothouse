@@ -2,7 +2,7 @@
 import Mustache from "mustache";
 import type { UpdateDetails } from "@hothouse/types";
 
-const titleTemplate = `Update {{packages}} to the latest version`;
+const titleTemplate = `Update {{&packages}} to the latest version`;
 
 const bodyTemplate = `
 ## Version **{{latest}}** of **{{&name}}** was just published.
