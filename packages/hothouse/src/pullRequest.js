@@ -17,7 +17,7 @@ The version(\`{{latest}}\`) is **not covered** by your current version range(\`{
 {{#releaseNote}}
 <details>
 <summary>Release Notes</summary>
-{{releaseNote}}
+{{&releaseNote}}
 </details>
 {{/releaseNote}}
 {{^releaseNote}}
