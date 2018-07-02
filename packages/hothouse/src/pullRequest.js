@@ -5,7 +5,7 @@ import type { UpdateDetails } from "@hothouse/types";
 const titleTemplate = `Update {{packages}} to the latest version`;
 
 const bodyTemplate = `
-## Version **{{latest}}** of **{{name}}** was just published.
+## Version **{{latest}}** of **{{&name}}** was just published.
 
 * Package: {{#repositoryUrl}}[repository]({{&repositoryUrl}}), {{/repositoryUrl}}[npm](https://www.npmjs.com/package/{{&name}})
 * Current Version: {{current}}
