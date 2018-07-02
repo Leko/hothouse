@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.1.27",
+  "version": "0.1.28",
   "description": "Internal types for hothouse",
   "main": "index.js",
   "scripts": {
