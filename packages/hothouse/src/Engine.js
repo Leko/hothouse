@@ -6,11 +6,13 @@ import type {
   Hosting,
   Structure,
   PackageManager,
-  Updates
+  Updates,
+  UpdateDetails
 } from "@hothouse/types";
 import type UpdateChunk from "./UpdateChunk";
 import hostings, { UnknownHosting } from "./Hosting";
 import Package from "./Package";
+import md2html from "./md2html";
 import createCommitMessage from "./commitMessage";
 import {
   createPullRequestTitle,
@@ -133,50 +135,39 @@ export default class Engine {
     branchName: string
   ): Promise<void> {
     // FIXME: Parallelise
-    const updateDetails: { [string]: Object } = {};
+    const changes: UpdateDetails = [];
     for (let pkgPath in updateChunk.allUpdates) {
       for (let update of updateChunk.allUpdates[pkgPath]) {
-        const currentTag = await this.getTag(
-          token,
-          `${update.name}@${update.current}`
-        );
-        const latestTag = await this.getTag(
-          token,
-          `${update.name}@${update.latest}`
+        const packageAnnotation = `${update.name}@${update.latest}`;
+        const meta = await this.packageManager.getPackageMeta(
+          packageAnnotation
         );
 
-        const meta = await this.packageManager.getPackageMeta(
-          `${update.name}@${update.latest}`
-        );
-        const hosting = await this.detectHosting(meta);
-        const compareUrl = await hosting.getCompareUrl(
+        const currentTag = await this.getTag(
           token,
-          meta.repository.url,
+          update.name,
+          update.current
+        );
+        const latestTag = await this.getTag(token, update.name, update.latest);
+        debug(packageAnnotation, {
           currentTag,
           latestTag
-        );
-        const releaseNote = await hosting.tagToReleaseNote(
-          token,
-          meta.repository.url,
-          latestTag
-        );
-        updateDetails[update.name] = {
-          currentTag,
-          latestTag,
-          compareUrl,
-          releaseNote
-        };
+        });
+        changes.push({
+          ...update,
+          repositoryUrl: meta.repository ? meta.repository.url : null,
+          compareUrl: await this.getCompareUrl(
+            token,
+            meta,
+            currentTag,
+            latestTag
+          ),
+          releaseNote: await this.getReleaseNote(token, meta, latestTag)
+        });
       }
     }
-    // $FlowFixMe(values-retuns-Updates)
-    const updatesList: Array<Updates> = Object.values(updateChunk.allUpdates);
-    const title = createPullRequestTitle(
-      ...updatesList.reduce(
-        (acc, updates) => acc.concat(updates.map(update => update.name)),
-        []
-      )
-    );
-    const body = createPullRequestMessage(updateChunk, updateDetails);
+    const title = createPullRequestTitle(changes);
+    const body = createPullRequestMessage(changes);
     const { stdout } = cp.spawnSync(
       "git",
       ["remote", "get-url", "--push", "origin"],
@@ -185,7 +176,7 @@ export default class Engine {
       }
     );
     // $FlowFixMe(stdout-is-string)
-    const repositoryUrl: string = stdout;
+    const repositoryUrl: string = stdout.trim();
 
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
@@ -229,9 +220,82 @@ export default class Engine {
     return new UnknownHosting();
   }
 
-  async getTag(token: string, packageAnnotation: string): Promise<string> {
-    const meta = await this.packageManager.getPackageMeta(packageAnnotation);
-    const hosting = await this.detectHosting(meta);
-    return hosting.shaToTag(token, meta.repository.url, meta.gitHead);
+  async getTag(
+    token: string,
+    packageName: string,
+    version: string
+  ): Promise<?string> {
+    const packageAnnotation = `${packageName}@${version}`;
+    debug(`Try to fetch tag ${packageAnnotation}`);
+    try {
+      const meta = await this.packageManager.getPackageMeta(packageAnnotation);
+      const hosting = await this.detectHosting(meta);
+      return hosting.shaToTag(token, meta.repository.url, meta.gitHead);
+    } catch (error) {
+      debug(
+        `An error occured during fetch compare url in ${packageName}@${version}:`,
+        error.stack
+      );
+      return null;
+    }
+  }
+
+  async getCompareUrl(
+    token: string,
+    meta: Object,
+    currentTag: ?string,
+    latestTag: ?string
+  ): Promise<?string> {
+    if (!currentTag || !latestTag) {
+      return null;
+    }
+
+    debug(`Try to fetch compare url ${meta.name}@${meta.version}`);
+    try {
+      const hosting = await this.detectHosting(meta);
+      return await hosting.getCompareUrl(
+        token,
+        meta.repository.url,
+        currentTag,
+        latestTag
+      );
+    } catch (error) {
+      debug(
+        `An error occured during fetch compare url in ${meta.name}@${
+          meta.version
+        }:`,
+        error.stack
+      );
+      return null;
+    }
+  }
+
+  async getReleaseNote(
+    token: string,
+    meta: Object,
+    latestTag: ?string
+  ): Promise<?string> {
+    if (!latestTag) {
+      return null;
+    }
+
+    debug(`Try to fetch release note about ${meta.name} with tag ${latestTag}`);
+    try {
+      const hosting = await this.detectHosting(meta);
+      const releaseNote = await hosting.tagToReleaseNote(
+        token,
+        meta.repository.url,
+        latestTag
+      );
+      return md2html(releaseNote);
+    } catch (error) {
+      debug(
+        `An error occured during fetch release note in ${meta.name}@${
+          meta.version
+        }:`,
+        error.stack
+      );
+      return null;
+    }
   }
 }
