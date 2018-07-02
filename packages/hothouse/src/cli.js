@@ -41,7 +41,6 @@ const main = async (options: CLIOptions, cwd) => {
     repositoryStructure: await structureResolver.detect(cwd),
     dryRun
   });
-  const branchName = engine.createBranchName();
 
   // FIXME: Parallelize
   const allUpdates = {};
@@ -58,6 +57,7 @@ const main = async (options: CLIOptions, cwd) => {
   debug(`UpdateChunks are:`, updateChunks);
 
   for (let updateChunk of updateChunks) {
+    const branchName = engine.createBranchName(updateChunk);
     for (let localPackage of updateChunk.getPackagePaths()) {
       try {
         const updates = updateChunk.getUpdatesBy(localPackage);
