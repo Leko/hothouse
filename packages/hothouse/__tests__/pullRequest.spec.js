@@ -19,10 +19,13 @@ test("createPullRequestTitle can concat package names format as CSV", () => {
 
   const title = createPullRequestTitle([
     { ...base, name: "hoge" },
-    { ...base, name: "foo" },
+    { ...base, name: "@scope/foo" },
     { ...base, name: "bar" }
   ]);
-  assert.strictEqual(title, "Update hoge, foo, bar to the latest version");
+  assert.strictEqual(
+    title,
+    "Update hoge, @scope/foo, bar to the latest version"
+  );
 });
 
 test("createPullRequestMessage must present repository link when repositoryUrl is passed", () => {
