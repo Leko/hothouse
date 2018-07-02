@@ -10,14 +10,14 @@ const bodyTemplate = `
 * Package: {{#repositoryUrl}}[repository]({{&repositoryUrl}}), {{/repositoryUrl}}[npm](https://www.npmjs.com/package/{{&name}})
 * Current Version: {{current}}
 * Dev: {{dev}}
-{{#repositoryUrl}}* [compare {{current}} to {{latest}} diffs]({{&repositoryUrl}}){{/repositoryUrl}}
+{{#compareUrl}}* [compare {{current}} to {{latest}} diffs]({{&compareUrl}}){{/compareUrl}}
 
 The version(\`{{latest}}\`) is **not covered** by your current version range(\`{{currentRange}}\`).
 
 {{#releaseNote}}
 <details>
 <summary>Release Notes</summary>
-{{releaseNote}}
+{{&releaseNote}}
 </details>
 {{/releaseNote}}
 {{^releaseNote}}
