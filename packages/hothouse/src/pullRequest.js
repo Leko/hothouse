@@ -1,37 +1,38 @@
 // @flow
-import path from "path";
-import type { Updates } from "@hothouse/types";
-import type UpdateChunk from "./UpdateChunk";
+import Mustache from "mustache";
+import type { UpdateDetails } from "@hothouse/types";
 
-export const createPullRequestTitle = (...packages: Array<string>): string =>
-  `Update ${packages.join(", ")} to latest version`;
+const titleTemplate = `Update {{packages}} to the latest version`;
+
+const bodyTemplate = `
+## Version **{{latest}}** of **{{name}}** was just published.
+
+* Package: {{#repositoryUrl}}[repository]({{&repositoryUrl}}), {{/repositoryUrl}}[npm](https://www.npmjs.com/package/{{&name}})
+* Current Version: {{current}}
+* Dev: {{dev}}
+{{#repositoryUrl}}* [compare {{current}} to {{latest}} diffs]({{&repositoryUrl}}){{/repositoryUrl}}
+
+The version(\`{{latest}}\`) is **not covered** by your current version range(\`{{currentRange}}\`).
+
+{{#releaseNote}}
+<details>
+<summary>Release Notes</summary>
+{{releaseNote}}
+</details>
+{{/releaseNote}}
+{{^releaseNote}}
+Release note is not available
+{{/releaseNote}}
+`.trim();
+
+export const createPullRequestTitle = (updateDetails: UpdateDetails): string =>
+  Mustache.render(titleTemplate, {
+    packages: updateDetails.map(detail => detail.name).join(", ")
+  });
 
 export const createPullRequestMessage = (
-  updateChunks: UpdateChunk,
-  updateDetails: {
-    [string]: {
-      currentTag: string,
-      latestTag: string,
-      compareUrl: string,
-      releaseNote: ?string
-    }
-  }
+  updateDetails: UpdateDetails
 ): string =>
-  `${Object.entries(updateChunks.allUpdates)
-    .map(
-      // $FlowFixMe(entries-returns-Updates)
-      ([pkgPath, updates]: [string, Updates]) =>
-        `## ${path.basename(pkgPath)}\n\n${updates
-          .map(
-            update =>
-              `* ${update.name} ${update.current} -> ${
-                update.latest
-              } (compare: ${updateDetails[update.name].compareUrl})${
-                updateDetails[update.name].releaseNote
-                  ? `\n  ${updateDetails[update.name].releaseNote}`
-                  : ""
-              }`
-          )
-          .join("\n")}`
-    )
-    .join("\n\n---\n\n")}`;
+  updateDetails
+    .map(detail => Mustache.render(bodyTemplate, detail))
+    .join("\n\n----------------------------------------\n\n");

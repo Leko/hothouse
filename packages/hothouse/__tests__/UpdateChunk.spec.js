@@ -9,6 +9,7 @@ test("split returns single chunk when perPackage=false", () => {
       {
         name: "pkg-a",
         current: "1.2.3",
+        currentRange: "^1.2.3",
         latest: "4.5.6",
         dev: true
       }
@@ -23,12 +24,14 @@ test("split can split per packages package when perPackage=true", () => {
       {
         name: "pkg-a",
         current: "1.2.3",
+        currentRange: "^1.2.3",
         latest: "4.5.6",
         dev: true
       },
       {
         name: "pkg-b",
         current: "3.4.5",
+        currentRange: "^3.4.5",
         latest: "6.7.8",
         dev: true
       }
@@ -40,6 +43,7 @@ test("split can split per packages package when perPackage=true", () => {
         {
           name: "pkg-a",
           current: "1.2.3",
+          currentRange: "^1.2.3",
           latest: "4.5.6",
           dev: true
         }
@@ -50,6 +54,7 @@ test("split can split per packages package when perPackage=true", () => {
         {
           name: "pkg-b",
           current: "3.4.5",
+          currentRange: "^3.4.5",
           latest: "6.7.8",
           dev: true
         }
@@ -64,12 +69,14 @@ test("split can split per packages between each multiple package when perPackage
       {
         name: "pkg-a",
         current: "1.2.3",
+        currentRange: "^1.2.3",
         latest: "4.5.6",
         dev: true
       },
       {
         name: "pkg-b",
         current: "3.4.5",
+        currentRange: "^3.4.5",
         latest: "6.7.8",
         dev: true
       }
@@ -78,12 +85,14 @@ test("split can split per packages between each multiple package when perPackage
       {
         name: "pkg-b",
         current: "1.2.3",
+        currentRange: "^1.2.3",
         latest: "6.7.8",
         dev: true
       },
       {
         name: "pkg-c",
         current: "5.6.7",
+        currentRange: "^5.6.7",
         latest: "7.8.9",
         dev: true
       }
@@ -95,6 +104,7 @@ test("split can split per packages between each multiple package when perPackage
         {
           name: "pkg-a",
           current: "1.2.3",
+          currentRange: "^1.2.3",
           latest: "4.5.6",
           dev: true
         }
@@ -106,6 +116,7 @@ test("split can split per packages between each multiple package when perPackage
         {
           name: "pkg-b",
           current: "3.4.5",
+          currentRange: "^3.4.5",
           latest: "6.7.8",
           dev: true
         }
@@ -114,6 +125,7 @@ test("split can split per packages between each multiple package when perPackage
         {
           name: "pkg-b",
           current: "1.2.3",
+          currentRange: "^1.2.3",
           latest: "6.7.8",
           dev: true
         }
@@ -125,6 +137,7 @@ test("split can split per packages between each multiple package when perPackage
         {
           name: "pkg-c",
           current: "5.6.7",
+          currentRange: "^5.6.7",
           latest: "7.8.9",
           dev: true
         }

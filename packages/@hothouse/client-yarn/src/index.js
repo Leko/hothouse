@@ -44,16 +44,16 @@ class Yarn implements PackageManager {
       .filter(
         ([name, outdated]: [string, Outdated]) => outdated.latest !== "linked"
       )
-      .reduce(
-        (acc, [name, outdated]: [string, Outdated]) =>
-          acc.concat({
-            name,
-            current: outdated.current,
-            latest: outdated.latest,
-            dev: !!(pkg.devDependencies && pkg.devDependencies[name])
-          }),
-        []
-      );
+      .reduce((acc, [name, outdated]: [string, Outdated]) => {
+        const inDev = !!(pkg.devDependencies && pkg.devDependencies[name]);
+        return acc.concat({
+          name,
+          current: outdated.current,
+          currentRange: pkg[inDev ? "devDependencies" : "dependencies"][name],
+          latest: outdated.latest,
+          dev: inDev
+        });
+      }, []);
   }
 
   async install(packageDirectory: string): Promise<void> {

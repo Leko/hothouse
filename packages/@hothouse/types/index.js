@@ -11,10 +11,23 @@ export type Outdated = {|
 export type Update = {|
   name: string,
   current: Semver,
+  currentRange: string,
   latest: Semver,
   dev: boolean
 |};
 export type Updates = Array<Update>;
+
+export type UpdateDetail = {|
+  +name: string,
+  +current: Semver,
+  +currentRange: string,
+  +latest: Semver,
+  +dev: boolean,
+  +repositoryUrl: ?string,
+  +compareUrl: ?string,
+  +releaseNote: ?string
+|};
+export type UpdateDetails = Array<UpdateDetail>;
 
 export interface PackageManager {
   match(directory: string): Promise<boolean>;
