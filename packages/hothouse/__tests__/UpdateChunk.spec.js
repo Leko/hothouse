@@ -146,3 +146,19 @@ test("split can split per packages between each multiple package when perPackage
   ];
   assert.deepStrictEqual(split(allUpdates, true), expected);
 });
+
+test("UpdateChunk#slugify can return hashed string", () => {
+  const chunk = new UpdateChunk({
+    "/some/package/a": [],
+    "/some/package/b": [
+      {
+        name: "pkg-c",
+        current: "5.6.7",
+        currentRange: "^5.6.7",
+        latest: "7.8.9",
+        dev: true
+      }
+    ]
+  });
+  assert.ok(typeof chunk.slugify(), "string");
+});
