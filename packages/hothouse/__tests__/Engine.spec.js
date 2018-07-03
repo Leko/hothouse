@@ -39,3 +39,38 @@ describe("Engine#logPrefix", () => {
     assert.equal(engine.logPrefix, "");
   });
 });
+
+describe("Engine#inBranch", () => {
+  const packageManager = new Npm();
+  const repositoryStructure = new SinglePackage();
+  test("Engine#inBranch must not call GitImpl.inBranch when dryRun=true", () => {
+    const engine = new Engine({
+      packageManager,
+      repositoryStructure,
+      dryRun: true,
+      gitImpl
+    });
+    const spy = jest.spyOn(gitImpl, "inBranch");
+    engine.inBranch("x", () => {});
+
+    expect(spy).not.toHaveBeenCalled();
+
+    spy.mockReset();
+    spy.mockRestore();
+  });
+  test("Engine#inBranch must call GitImpl.inBranch when dryRun=false", () => {
+    const engine = new Engine({
+      packageManager,
+      repositoryStructure,
+      dryRun: false,
+      gitImpl
+    });
+    const spy = jest.spyOn(gitImpl, "inBranch");
+    engine.inBranch("x", () => {});
+
+    expect(spy).toHaveBeenCalled();
+
+    spy.mockReset();
+    spy.mockRestore();
+  });
+});

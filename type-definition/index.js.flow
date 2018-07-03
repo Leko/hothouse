@@ -1,3 +1,5 @@
 // For jest
+declare var jest: any;
+declare var expect: any;
 declare var test: (string, Function) => void;
 declare var describe: (string, Function) => void;
