@@ -61,10 +61,17 @@ const main = async (options: CLIOptions, cwd) => {
   for (let updateChunk of updateChunks) {
     const branchName = engine.createBranchName(updateChunk);
     await engine.inBranch(branchName, async () => {
+      let allChangeSet: Set<strinng> = new Set([]);
       for (let localPackage of updateChunk.getPackagePaths()) {
         try {
           const updates = updateChunk.getUpdatesBy(localPackage);
-          await engine.applyUpdates(localPackage, cwd, updates);
+          const changeSet = await engine.applyUpdates(
+            localPackage,
+            cwd,
+            updates
+          );
+          debug(path.relative(cwd, localPackage), changeSet);
+          allChangeSet = new Set([...allChangeSet, ...changeSet]);
         } catch (error) {
           if (!bail) {
             throw error;
@@ -79,8 +86,9 @@ const main = async (options: CLIOptions, cwd) => {
           );
         }
       }
+      debug({ allChangeSet });
       // FIXME: refactor structure
-      await engine.commit(cwd, updateChunk, branchName);
+      await engine.commit(cwd, updateChunk, allChangeSet, branchName);
       await engine.createPullRequest(token, cwd, updateChunk, branchName);
     });
   }

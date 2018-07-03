@@ -12,3 +12,8 @@ test("Npm#match should returns false if directory not have package.json", async 
   const npm = new Npm();
   assert.ok(!(await npm.match(path.join(__dirname, "fixtures", "not-npm"))));
 });
+
+test("Npm#getLockFileName should returns package-lock.json", async () => {
+  const npm = new Npm();
+  assert.ok(npm.getLockFileName(), "package-lock.json");
+});

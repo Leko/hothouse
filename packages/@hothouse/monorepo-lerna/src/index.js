@@ -35,7 +35,7 @@ class Lerna implements Structure {
     packageDirectory: string,
     rootDirectory: string,
     npmClient: PackageManager
-  ): Promise<void> {
+  ): Promise<Set<string>> {
     const result = cp.spawnSync("npx", ["lerna", "bootstrap"], {
       encoding: "utf8",
       cwd: rootDirectory,
@@ -47,6 +47,12 @@ class Lerna implements Structure {
     if (result.status !== 0) {
       throw new Error(result.stderr);
     }
+
+    const prefix = path.relative(rootDirectory, packageDirectory);
+    return new Set([
+      path.join(prefix, "package.json"),
+      path.join(prefix, npmClient.getLockFileName())
+    ]);
   }
 }
 

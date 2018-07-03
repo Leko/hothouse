@@ -31,6 +31,7 @@ export type UpdateDetails = Array<UpdateDetail>;
 
 export interface PackageManager {
   match(directory: string): Promise<boolean>;
+  getLockFileName(): string;
   getUpdates(packageDirectory: string): Promise<Updates>;
   getPackageMeta(packageName: string): Promise<Object>;
   install(packageDirectory: string): Promise<void>;
@@ -43,7 +44,7 @@ export interface Structure {
     packageDirectory: string,
     rootDirectory: string,
     npmClient: PackageManager
-  ): Promise<void>;
+  ): Promise<Set<string>>;
 }
 
 export interface Hosting {
