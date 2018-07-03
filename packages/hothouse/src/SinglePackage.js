@@ -16,8 +16,9 @@ class SinglePackage implements Structure {
     packageDirectory: string,
     rootDirectory: string,
     npmClient: PackageManager
-  ): Promise<void> {
+  ): Promise<Set<string>> {
     await npmClient.install(packageDirectory);
+    return new Set(["package.json", npmClient.getLockFileName()]);
   }
 }
 

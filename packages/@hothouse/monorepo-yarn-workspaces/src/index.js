@@ -39,8 +39,9 @@ class YarnWorkspaces implements Structure {
     packageDirectory: string,
     rootDirectory: string,
     npmClient: PackageManager
-  ): Promise<void> {
+  ): Promise<Set<string>> {
     await npmClient.install(rootDirectory);
+    return new Set(["package.json", "yarn.lock"]);
   }
 }
 
