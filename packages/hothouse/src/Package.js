@@ -1,6 +1,8 @@
 // @flow
 import fs from "fs";
+import path from "path";
 import semver from "semver";
+import normalize from "normalize-package-data";
 import type { Update } from "@hothouse/types";
 
 export const replaceSemver = (
@@ -33,11 +35,18 @@ export const replaceSemver = (
 export default class Package {
   pkgJsonPath: string;
   pkgJson: Object;
+  pkgJsonNormalized: Object;
+
+  static createFromDirectory(dir: string): Package {
+    return new Package(path.join(dir, "package.json"));
+  }
 
   constructor(pkgJsonPath: string) {
     this.pkgJsonPath = pkgJsonPath;
     // $FlowFixMe(dynamic-require)
     this.pkgJson = require(pkgJsonPath);
+    this.pkgJsonNormalized = JSON.parse(JSON.stringify(this.pkgJson)); // Deep clone
+    normalize(this.pkgJsonNormalized);
   }
 
   apply(update: Update): void {
@@ -46,6 +55,10 @@ export default class Package {
       : this.pkgJson.dependencies;
 
     deps[update.name] = replaceSemver(deps[update.name], update.latest);
+  }
+
+  getRepositoryUrl(): string {
+    return this.pkgJsonNormalized.repository.url;
   }
 
   async save(): Promise<void> {

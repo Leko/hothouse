@@ -58,27 +58,29 @@ const main = async (options: CLIOptions, cwd) => {
 
   for (let updateChunk of updateChunks) {
     const branchName = engine.createBranchName(updateChunk);
-    for (let localPackage of updateChunk.getPackagePaths()) {
-      try {
-        const updates = updateChunk.getUpdatesBy(localPackage);
-        await engine.applyUpdates(localPackage, cwd, updates);
-      } catch (error) {
-        if (!bail) {
-          throw error;
+    await engine.inBranch(branchName, async () => {
+      for (let localPackage of updateChunk.getPackagePaths()) {
+        try {
+          const updates = updateChunk.getUpdatesBy(localPackage);
+          await engine.applyUpdates(localPackage, cwd, updates);
+        } catch (error) {
+          if (!bail) {
+            throw error;
+          }
+          // eslint-disable-next-line no-console
+          console.error(
+            `An error occured during update ${path.basename(
+              localPackage
+            )}.\nIt's internal bug.\nPlease report issue from here: ${
+              bugs.url
+            }\n\n${error.stack}`
+          );
         }
-        // eslint-disable-next-line no-console
-        console.error(
-          `An error occured during update ${path.basename(
-            localPackage
-          )}.\nIt's internal bug.\nPlease report issue from here: ${
-            bugs.url
-          }\n\n${error.stack}`
-        );
       }
-    }
-    // FIXME: refactor structure
-    await engine.commit(cwd, updateChunk, branchName);
-    await engine.createPullRequest(token, updateChunk, branchName);
+      // FIXME: refactor structure
+      await engine.commit(cwd, updateChunk, branchName);
+      await engine.createPullRequest(token, cwd, updateChunk, branchName);
+    });
   }
 };
 
