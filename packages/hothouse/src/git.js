@@ -1,5 +1,6 @@
 // @flow
 import fs from "fs";
+import type { GitImpl } from "@hothouse/types";
 const git = require("isomorphic-git"); // FIXME: Replace with import
 
 const debug = require("debug")("hothouse:git");
@@ -8,7 +9,7 @@ const repo = {
   dir: "."
 };
 
-export default {
+const impl: GitImpl = {
   async add(...paths: Array<string>): Promise<void> {
     debug("add", { paths });
     for (let filepath of paths) {
@@ -41,10 +42,11 @@ export default {
     return git.currentBranch({ ...repo });
   },
 
-  async inBranch(branchName: string, fn: () => any) {
+  async inBranch(branchName: string, fn: () => any): Promise<void> {
     debug(`inBranch ${branchName}`);
     const currentBranch = await this.getCurrentBranch();
     try {
+      await this.createBranch(branchName);
       await this.checkout(branchName);
       await fn();
     } finally {
@@ -52,3 +54,5 @@ export default {
     }
   }
 };
+
+export default impl;

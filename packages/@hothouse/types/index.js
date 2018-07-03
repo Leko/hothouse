@@ -75,3 +75,13 @@ export interface Hosting {
   ): Promise<string>;
   getDefaultBranch(token: string, repositoryUrl: string): Promise<string>;
 }
+
+export interface GitImpl {
+  add(...paths: Array<string>): Promise<void>;
+  checkout(branchName: string): Promise<void>;
+  createBranch(branchName: string): Promise<void>;
+  commit(message: string): Promise<void>;
+  push(token: string, ref?: string): Promise<void>;
+  getCurrentBranch(): Promise<string>;
+  inBranch(branchName: string, fn: () => any): Promise<void>;
+}
