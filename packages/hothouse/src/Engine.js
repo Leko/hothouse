@@ -1,6 +1,5 @@
 // @flow
 import path from "path";
-import cp from "child_process";
 import minimatch from "minimatch";
 import type {
   Hosting,
@@ -18,6 +17,7 @@ import {
   createPullRequestTitle,
   createPullRequestMessage
 } from "./pullRequest";
+import git from "./git";
 
 const debug = require("debug")("hothouse:Engine");
 
@@ -65,8 +65,7 @@ export default class Engine {
     rootDirectory: string,
     updates: Updates
   ): Promise<void> {
-    const packageJsonPath = path.join(packageDirectory, "package.json");
-    const pkg = new Package(packageJsonPath);
+    const pkg = Package.createFromDirectory(packageDirectory);
     updates.forEach(update => {
       debug(
         `${this.logPrefix}Apply update (${update.name} ${update.current}->${
@@ -77,7 +76,7 @@ export default class Engine {
       pkg.apply(update);
     });
 
-    debug(`${this.logPrefix}Try to save: ${packageJsonPath}`);
+    debug(`${this.logPrefix}Try to save: ${pkg.pkgJsonPath}`);
     debug(
       `${this.logPrefix}Try to update dependencies in ${path.basename(
         packageDirectory
@@ -101,6 +100,15 @@ export default class Engine {
     return `${branchName}-${updateChunk.slugify()}`;
   }
 
+  async inBranch(branchName: string, fn: () => any): Promise<void> {
+    debug(`${this.logPrefix}Try to git operations in branch: ${branchName}`);
+    if (this.dryRun) {
+      return fn();
+    } else {
+      return git.inBranch(branchName, fn);
+    }
+  }
+
   async commit(
     rootDirectory: string,
     updateChunk: UpdateChunk,
@@ -110,27 +118,17 @@ export default class Engine {
     const message = createCommitMessage(updateChunk);
 
     debug(`${this.logPrefix}Try to git add .`);
-    debug(`${this.logPrefix}Try to git checkout -b ${branchName}`);
     debug(`${this.logPrefix}Try to commit with message:`, { message });
     if (!this.dryRun) {
       // FIXME: Filter files changed by hothouse
-      cp.spawnSync("git", ["add", "."], {
-        cwd: rootDirectory,
-        stdio: "inherit"
-      });
-      cp.spawnSync("git", ["checkout", "-b", branchName], {
-        cwd: rootDirectory,
-        stdio: "inherit"
-      });
-      cp.spawnSync("git", ["commit", "--message", message], {
-        cwd: rootDirectory,
-        stdio: "inherit"
-      });
+      await git.add(".");
+      await git.commit(message);
     }
   }
 
   async createPullRequest(
     token: string,
+    rootDirectory: string,
     updateChunk: UpdateChunk,
     branchName: string
   ): Promise<void> {
@@ -168,15 +166,9 @@ export default class Engine {
     }
     const title = createPullRequestTitle(changes);
     const body = createPullRequestMessage(changes);
-    const { stdout } = cp.spawnSync(
-      "git",
-      ["remote", "get-url", "--push", "origin"],
-      {
-        encoding: "utf8"
-      }
-    );
-    // $FlowFixMe(stdout-is-string)
-    const repositoryUrl: string = stdout.trim();
+    const repositoryUrl: string = Package.createFromDirectory(
+      rootDirectory
+    ).getRepositoryUrl();
 
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
@@ -192,10 +184,7 @@ export default class Engine {
       body
     });
     if (!this.dryRun) {
-      cp.spawnSync("git", ["push", "origin", branchName], {
-        encoding: "utf8",
-        stdio: "inherit"
-      });
+      await git.push(token, branchName);
       await hosting.createPullRequest(
         token,
         repositoryUrl,
