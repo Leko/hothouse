@@ -117,7 +117,7 @@ export default class Engine {
   async commit(
     rootDirectory: string,
     updateChunk: UpdateChunk,
-    changeSet: Set<strinng>,
+    changeSet: Set<string>,
     branchName: string
   ): Promise<void> {
     // FIXME: Make customizable
@@ -126,7 +126,7 @@ export default class Engine {
     debug(`${this.logPrefix}Try to git add .`);
     debug(`${this.logPrefix}Try to commit with message:`, { message });
     if (!this.dryRun) {
-      await this.gitImpl.add(changeSet.values());
+      await this.gitImpl.add(...changeSet);
       await this.gitImpl.commit(message);
     }
   }
