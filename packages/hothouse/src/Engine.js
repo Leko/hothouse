@@ -216,9 +216,27 @@ export default class Engine {
   ): Promise<?string> {
     const packageAnnotation = `${packageName}@${version}`;
     debug(`Try to fetch tag ${packageAnnotation}`);
+
     try {
       const meta = await this.packageManager.getPackageMeta(packageAnnotation);
       const hosting = await this.detectHosting(meta);
+
+      const commonTagNames = [`v${version}`, version];
+      for (let tag of commonTagNames) {
+        debug(`Check commonly named tag exists: ${tag}`);
+        if (await hosting.tagExists(token, meta.repository.url, tag)) {
+          debug(`Tag exists: ${tag}`);
+          return tag;
+        }
+        debug(`${tag} is not exists`);
+      }
+      if (!meta.gitHead) {
+        debug(
+          `gitHead is not specified so cannot resolve tag name: ${packageAnnotation}`
+        );
+        return null;
+      }
+      debug(`Resolve tag by commit sha: ${meta.gitHead}`);
       return await hosting.shaToTag(token, meta.repository.url, meta.gitHead);
     } catch (error) {
       debug(

@@ -6,6 +6,14 @@ export default class UnknownHosting implements Hosting {
     return true;
   }
 
+  async tagExists(
+    token: string,
+    repositoryUrl: string,
+    tag: string
+  ): Promise<boolean> {
+    return false;
+  }
+
   async shaToTag(
     token: string,
     repositoryUrl: string,
