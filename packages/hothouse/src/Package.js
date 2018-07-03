@@ -1,5 +1,6 @@
 // @flow
 import fs from "fs";
+import path from "path";
 import semver from "semver";
 import type { Update } from "@hothouse/types";
 
@@ -34,6 +35,10 @@ export default class Package {
   pkgJsonPath: string;
   pkgJson: Object;
 
+  static createFromDirectory(dir: string): Package {
+    return new Package(path.join(dir, "package.json"));
+  }
+
   constructor(pkgJsonPath: string) {
     this.pkgJsonPath = pkgJsonPath;
     // $FlowFixMe(dynamic-require)
@@ -46,6 +51,10 @@ export default class Package {
       : this.pkgJson.dependencies;
 
     deps[update.name] = replaceSemver(deps[update.name], update.latest);
+  }
+
+  getRepositoryUrl(): string {
+    return this.pkgJson.repository.url;
   }
 
   async save(): Promise<void> {
