@@ -6,7 +6,8 @@ import type {
   Structure,
   PackageManager,
   Updates,
-  UpdateDetails
+  UpdateDetails,
+  GitImpl
 } from "@hothouse/types";
 import type UpdateChunk from "./UpdateChunk";
 import hostings, { UnknownHosting } from "./Hosting";
@@ -17,27 +18,30 @@ import {
   createPullRequestTitle,
   createPullRequestMessage
 } from "./pullRequest";
-import git from "./git";
 
 const debug = require("debug")("hothouse:Engine");
 
 export default class Engine {
   repositoryStructure: Structure;
   packageManager: PackageManager;
+  gitImpl: GitImpl;
   dryRun: boolean;
 
   constructor({
     packageManager,
     repositoryStructure,
-    dryRun
+    dryRun,
+    gitImpl
   }: {
     packageManager: PackageManager,
     repositoryStructure: Structure,
-    dryRun: boolean
+    dryRun: boolean,
+    gitImpl: GitImpl
   }) {
     this.repositoryStructure = repositoryStructure;
     this.packageManager = packageManager;
     this.dryRun = dryRun;
+    this.gitImpl = gitImpl;
 
     debug(`dryRun=${String(dryRun)}`);
   }
@@ -105,7 +109,7 @@ export default class Engine {
     if (this.dryRun) {
       return fn();
     } else {
-      return git.inBranch(branchName, fn);
+      return this.gitImpl.inBranch(branchName, fn);
     }
   }
 
@@ -121,8 +125,8 @@ export default class Engine {
     debug(`${this.logPrefix}Try to commit with message:`, { message });
     if (!this.dryRun) {
       // FIXME: Filter files changed by hothouse
-      await git.add(".");
-      await git.commit(message);
+      await this.gitImpl.add(".");
+      await this.gitImpl.commit(message);
     }
   }
 
@@ -184,7 +188,7 @@ export default class Engine {
       body
     });
     if (!this.dryRun) {
-      await git.push(token, branchName);
+      await this.gitImpl.push(token, branchName);
       await hosting.createPullRequest(
         token,
         repositoryUrl,
