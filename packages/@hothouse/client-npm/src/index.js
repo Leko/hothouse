@@ -9,6 +9,10 @@ class Npm implements PackageManager {
     return fs.existsSync(path.join(directory, "package.json"));
   }
 
+  getLockFileName(): string {
+    return "package-lock.json";
+  }
+
   async getUpdates(packageDirectory: string): Promise<Updates> {
     // $FlowFixMe(dynamic-require)
     const pkg = require(path.join(packageDirectory, "package.json"));
