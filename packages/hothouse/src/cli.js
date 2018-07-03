@@ -41,7 +41,7 @@ const main = async (options: CLIOptions, cwd) => {
     packageManager: await pkgManagerResolver.detect(cwd),
     repositoryStructure: await structureResolver.detect(cwd),
     dryRun,
-    git
+    gitImpl: git
   });
 
   // FIXME: Parallelize

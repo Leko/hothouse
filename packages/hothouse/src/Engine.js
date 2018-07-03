@@ -32,12 +32,12 @@ export default class Engine {
     repositoryStructure,
     dryRun,
     gitImpl
-  }: {
+  }: {|
     packageManager: PackageManager,
     repositoryStructure: Structure,
     dryRun: boolean,
     gitImpl: GitImpl
-  }) {
+  |}) {
     this.repositoryStructure = repositoryStructure;
     this.packageManager = packageManager;
     this.dryRun = dryRun;
