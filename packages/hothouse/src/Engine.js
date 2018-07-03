@@ -68,7 +68,7 @@ export default class Engine {
     packageDirectory: string,
     rootDirectory: string,
     updates: Updates
-  ): Promise<void> {
+  ): Promise<Set<string>> {
     const pkg = Package.createFromDirectory(packageDirectory);
     updates.forEach(update => {
       debug(
@@ -86,14 +86,15 @@ export default class Engine {
         packageDirectory
       )} with ${this.packageManager.constructor.name}`
     );
-    if (!this.dryRun) {
-      await pkg.save();
-      await this.repositoryStructure.install(
-        packageDirectory,
-        rootDirectory,
-        this.packageManager
-      );
+    if (this.dryRun) {
+      return new Set([]);
     }
+    await pkg.save();
+    return this.repositoryStructure.install(
+      packageDirectory,
+      rootDirectory,
+      this.packageManager
+    );
   }
 
   createBranchName(updateChunk: UpdateChunk): string {
@@ -116,6 +117,7 @@ export default class Engine {
   async commit(
     rootDirectory: string,
     updateChunk: UpdateChunk,
+    changeSet: Set<strinng>,
     branchName: string
   ): Promise<void> {
     // FIXME: Make customizable
@@ -124,8 +126,7 @@ export default class Engine {
     debug(`${this.logPrefix}Try to git add .`);
     debug(`${this.logPrefix}Try to commit with message:`, { message });
     if (!this.dryRun) {
-      // FIXME: Filter files changed by hothouse
-      await this.gitImpl.add(".");
+      await this.gitImpl.add(changeSet.values());
       await this.gitImpl.commit(message);
     }
   }
