@@ -30,3 +30,8 @@ test("Yarn#match should returns false if directory not have yarn.lock", async ()
   const yarn = new Yarn();
   assert.ok(!(await yarn.match(path.join(__dirname, "fixtures", "not-yarn"))));
 });
+
+test("Yarn#getLockFileName should returns yarn.lock", async () => {
+  const npm = new Yarn();
+  assert.ok(npm.getLockFileName(), "yarn.lock");
+});
