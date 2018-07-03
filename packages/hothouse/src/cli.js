@@ -7,6 +7,7 @@ import RepositoryStructureResolver from "./RepositoryStructureResolver";
 import { split } from "./UpdateChunk";
 import { bugs } from "../package.json";
 import cliOptions, { type CLIOptions } from "./cliOptions";
+import git from "./git";
 
 const debug = require("debug")("hothouse:cli");
 
@@ -39,7 +40,8 @@ const main = async (options: CLIOptions, cwd) => {
   const engine = new Engine({
     packageManager: await pkgManagerResolver.detect(cwd),
     repositoryStructure: await structureResolver.detect(cwd),
-    dryRun
+    dryRun,
+    git
   });
 
   // FIXME: Parallelize
