@@ -49,6 +49,11 @@ export interface Structure {
 export interface Hosting {
   match(repositoryUrl: string): Promise<boolean>;
   shaToTag(token: string, repositoryUrl: string, sha: string): Promise<string>;
+  tagExists(
+    token: string,
+    repositoryUrl: string,
+    tag: string
+  ): Promise<boolean>;
   tagToReleaseNote(
     token: string,
     repositoryUrl: string,
