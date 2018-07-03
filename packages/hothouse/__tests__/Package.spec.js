@@ -3,6 +3,14 @@
 import assert from "assert";
 import Package, { replaceSemver } from "../src/Package";
 
+test("Package.createFromDirectory can instantiate with valid directory", () => {
+  const pkg = Package.createFromDirectory("../");
+  assert.equal(pkg.constructor, Package);
+});
+test("Package.createFromDirectory cannot instantiate with invalid directory", () => {
+  assert.throws(() => Package.createFromDirectory("./not-exists-path"));
+});
+
 test("Package can instantiate with valid package path", () => {
   const pkg = new Package("../package.json");
   assert.equal(pkg.constructor, Package);
