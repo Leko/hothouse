@@ -7,7 +7,6 @@ import RepositoryStructureResolver from "./RepositoryStructureResolver";
 import { split } from "./UpdateChunk";
 import { bugs } from "../package.json";
 import cliOptions, { type CLIOptions } from "./cliOptions";
-import git from "./git";
 
 const debug = require("debug")("hothouse:cli");
 
