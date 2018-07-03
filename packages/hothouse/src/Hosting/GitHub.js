@@ -2,7 +2,6 @@
 import parse from "git-url-parse";
 import octokit from "@octokit/rest";
 import type { Hosting } from "@hothouse/types";
-import { ShaNotResolved } from "../errors";
 import { getTagsQuery } from "./graphql";
 
 export const parseRepositoryUrl = (url: string): [string, string] => {
@@ -59,7 +58,7 @@ export default class GitHub implements Hosting {
       }
       page++;
     }
-    throw new ShaNotResolved(`Cannot resolve sha: ${sha}`);
+    throw new Error(`Cannot resolve sha: ${sha}`);
   }
 
   async tagToReleaseNote(

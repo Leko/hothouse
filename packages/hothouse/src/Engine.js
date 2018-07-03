@@ -18,7 +18,6 @@ import {
   createPullRequestMessage
 } from "./pullRequest";
 import git from "./git";
-import { ShaNotResolved } from "./errors";
 
 const debug = require("debug")("hothouse:Engine");
 
