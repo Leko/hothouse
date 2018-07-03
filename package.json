@@ -10,7 +10,7 @@
     "release": "./scripts/release",
     "build": "lerna run build",
     "test": "lerna run test",
-    "lint": "eslint --cache '**/{src,test}/**/*.js'",
+    "lint": "eslint --cache '**/{src,__tests__}/**/*.js'",
     "flow": "flow --show-all-errors"
   },
   "repository": {
