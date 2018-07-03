@@ -19,6 +19,32 @@ test("Package cannot instantiate with invalid package path", () => {
   assert.throws(() => new Package("./not-exists-path.json"));
 });
 
+test("Package#getRepositoryUrl can resolve basic repository.url", () => {
+  const pkg = new Package("../package.json");
+  const url = "git+ssh://git@github.com/Leko/hothouse.git";
+  pkg.pkgJson.repository = {
+    type: "git",
+    url
+  };
+  assert.equal(pkg.getRepositoryUrl(), url);
+});
+test("Package#getRepositoryUrl can resolve shortcut format (parse as GitHub)", () => {
+  const pkg = new Package("../package.json");
+  pkg.pkgJson.repository = "Leko/hothouse";
+  assert.equal(
+    pkg.getRepositoryUrl(),
+    "git+ssh://git@github.com/Leko/hothouse.git"
+  );
+});
+test("Package#getRepositoryUrl can resolve github shortcut format", () => {
+  const pkg = new Package("../package.json");
+  pkg.pkgJson.repository = "github:Leko/hothouse";
+  assert.equal(
+    pkg.getRepositoryUrl(),
+    "git+https://github.com/Leko/hothouse.git"
+  );
+});
+
 test("replaceSemver can replace exact semver", () => {
   assert.equal(replaceSemver("1.2.3", "4.5.6"), "4.5.6");
 });
