@@ -13,7 +13,11 @@ const impl: GitImpl = {
   async add(...paths: Array<string>): Promise<void> {
     debug("add", { paths });
     for (let filepath of paths) {
-      await git.add({ ...repo, filepath });
+      try {
+        await git.add({ ...repo, filepath });
+      } catch (error) {
+        debug(error.stack);
+      }
     }
   },
 
