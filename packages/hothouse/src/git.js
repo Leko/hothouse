@@ -1,5 +1,6 @@
 // @flow
 import fs from "fs";
+import cp from "child_process";
 import type { GitImpl } from "@hothouse/types";
 const git = require("isomorphic-git"); // FIXME: Replace with import
 
@@ -9,7 +10,54 @@ const repo = {
   dir: "."
 };
 
+const configPaths = ["user.name", "user.email"];
+const defaultConfig = {
+  "user.name": "hothouse",
+  "user.email": "hothouse@example.com"
+};
+
 const impl: GitImpl = {
+  // This is temporary work around:
+  // > Currently only the local $GIT_DIR/config file can be read or written.
+  // > However support for the global ~/.gitconfig and system $(prefix)/etc/gitconfig will be added in the future.
+  // > [config · isomorphic-git](https://isomorphic-git.github.io/docs/config.html)
+  async loadConfig(): Promise<void> {
+    if (await git.config({ ...repo, path: "user.name" })) {
+      this.preserveLocalSettings = true;
+    }
+    const { stdout } = cp.spawnSync("git", ["config", "--get-regexp", "user"], {
+      encoding: "utf8"
+    });
+    // $FlowFixMe(stdout-is-string)
+    const author: { "user.name": string, "user.email": string } = stdout
+      .split("\n")
+      .map(line => line.split(" "))
+      .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
+
+    for (let p of configPaths) {
+      let value = author[p];
+      if (!value) {
+        debug(
+          `config ${p} does not exists, set default value (${defaultConfig[p]})`
+        );
+        value = defaultConfig[p];
+      }
+      debug(`Try to set git config: ${p}=${value}`);
+      await git.config({ ...repo, path: p, value: value });
+    }
+  },
+  async restoreConfig(): Promise<void> {
+    if (this.preserveLocalSettings) {
+      debug("Git config exists from original so does nothing");
+      return;
+    }
+
+    for (let p of configPaths) {
+      debug(`Try to remove git config: ${p}`);
+      cp.spawnSync("git", ["config", "--unset", p], { encoding: "utf8" });
+    }
+  },
+
   async add(...paths: Array<string>): Promise<void> {
     debug("add", { paths });
     for (let filepath of paths) {
