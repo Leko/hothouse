@@ -2,6 +2,7 @@
 import fs from "fs";
 import path from "path";
 import semver from "semver";
+import { fromUrl } from "hosted-git-info";
 import normalize from "normalize-package-data";
 import type { Update } from "@hothouse/types";
 
@@ -58,7 +59,8 @@ export default class Package {
   }
 
   getRepositoryUrl(): string {
-    return this.pkgJsonNormalized.repository.url;
+    const gitHost = fromUrl(this.pkgJsonNormalized.repository.url);
+    return gitHost.https();
   }
 
   async save(): Promise<void> {

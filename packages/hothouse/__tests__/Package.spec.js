@@ -19,21 +19,24 @@ test("Package cannot instantiate with invalid package path", () => {
   assert.throws(() => new Package("./not-exists-path.json"));
 });
 
-test("Package#getRepositoryUrl can resolve basic repository.url", () => {
+test("Package#getRepositoryUrl can resolve basic repository.url as https", () => {
   const pkg = new Package("../package.json");
   const url = "git+ssh://git@github.com/Leko/hothouse.git";
   pkg.pkgJson.repository = {
     type: "git",
     url
   };
-  assert.equal(pkg.getRepositoryUrl(), url);
+  assert.equal(
+    pkg.getRepositoryUrl(),
+    "git+https://github.com/Leko/hothouse.git"
+  );
 });
-test("Package#getRepositoryUrl can resolve shortcut format (parse as GitHub)", () => {
+test("Package#getRepositoryUrl can resolve shortcut format (parse as GitHub) as https", () => {
   const pkg = new Package("../package.json");
   pkg.pkgJson.repository = "Leko/hothouse";
   assert.equal(
     pkg.getRepositoryUrl(),
-    "git+ssh://git@github.com/Leko/hothouse.git"
+    "git+https://github.com/Leko/hothouse.git"
   );
 });
 test("Package#getRepositoryUrl can resolve github shortcut format", () => {
