@@ -128,8 +128,14 @@ export default class Engine {
 
   createBranchName(updateChunk: UpdateChunk): string {
     const now = new Date();
-    const branchName = `hothouse-${now.getFullYear()}${now.getMonth() +
-      1}${now.getDate()}`;
+    const branchName = `hothouse-${[
+      now.getFullYear(),
+      String(now.getMonth()).padStart(2, "0"),
+      String(now.getDate()).padStart(2, "0"),
+      String(now.getHours()).padStart(2, "0"),
+      String(now.getMinutes()).padStart(2, "0"),
+      String(now.getSeconds()).padStart(2, "0")
+    ].join("")}`;
     debug(`Branch name created: ${branchName} with ${now.toISOString()}`);
     return `${branchName}-${updateChunk.slugify()}`;
   }
@@ -328,7 +334,7 @@ export default class Engine {
         meta.repository.url,
         latestTag
       );
-      return md2html(releaseNote);
+      return releaseNote ? md2html(releaseNote) : null;
     } catch (error) {
       debug(
         `An error occured during fetch release note in ${meta.name}@${
