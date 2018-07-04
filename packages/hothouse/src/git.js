@@ -74,7 +74,10 @@ const impl: GitImpl = {
   async checkout(branchName: string): Promise<void> {
     debug("checkout", { branchName });
     // await git.checkout({ ...repo, ref: branchName });
-    cp.spawnSync("git", ["checkout", "-b", branchName], { encoding: "utf8" });
+    cp.spawnSync("git", ["checkout", branchName], {
+      encoding: "utf8",
+      stdio: "inherit"
+    });
   },
 
   async createBranch(branchName: string): Promise<void> {
@@ -84,12 +87,20 @@ const impl: GitImpl = {
 
   async commit(message: string): Promise<void> {
     debug("commit", message);
-    await git.commit({ ...repo, message });
+    // await git.commit({ ...repo, message });
+    cp.spawnSync("git", ["commit", "-m", message], {
+      encoding: "utf8",
+      stdio: "inherit"
+    });
   },
 
-  async push(token: string, remoteUrl: string, ref?: string): Promise<void> {
+  async push(token: string, remoteUrl: string, ref: string): Promise<void> {
     debug(`push`, { ref });
-    await git.push({ ...repo, token, ref, url: remoteUrl });
+    // await git.push({ ...repo, token, ref, url: remoteUrl });
+    cp.spawnSync("git", ["push", "origin", ref], {
+      encoding: "utf8",
+      stdio: "inherit"
+    });
   },
 
   async getCurrentBranch(): Promise<string> {
