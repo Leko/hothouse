@@ -37,65 +37,60 @@ const main = async (options: CLIOptions, cwd) => {
     ].filter(plugin => !!plugin)
   );
 
-  await git.loadConfig();
-  try {
-    const engine = new Engine({
-      packageManager: await pkgManagerResolver.detect(cwd),
-      repositoryStructure: await structureResolver.detect(cwd),
-      dryRun,
-      gitImpl: git
-    });
+  const engine = new Engine({
+    packageManager: await pkgManagerResolver.detect(cwd),
+    repositoryStructure: await structureResolver.detect(cwd),
+    dryRun,
+    gitImpl: git
+  });
 
-    // FIXME: Parallelize
-    const allUpdates = {};
-    for (let localPackage of await engine.getPackages(cwd)) {
-      const updates = await engine.getUpdates(localPackage, ignore);
-      allUpdates[localPackage] = updates;
-    }
-    if (Object.keys(allUpdates).length === 0) {
-      return;
-    }
+  // FIXME: Parallelize
+  const allUpdates = {};
+  for (let localPackage of await engine.getPackages(cwd)) {
+    const updates = await engine.getUpdates(localPackage, ignore);
+    allUpdates[localPackage] = updates;
+  }
+  if (Object.keys(allUpdates).length === 0) {
+    return;
+  }
 
-    const updateChunks = split(allUpdates, perPackage);
-    debug(`Updates are:`, allUpdates);
-    debug(`UpdateChunks are:`, updateChunks);
+  const updateChunks = split(allUpdates, perPackage);
+  debug(`Updates are:`, allUpdates);
+  debug(`UpdateChunks are:`, updateChunks);
 
-    for (let updateChunk of updateChunks) {
-      const branchName = engine.createBranchName(updateChunk);
-      await engine.inBranch(branchName, async () => {
-        let allChangeSet: Set<strinng> = new Set([]);
-        for (let localPackage of updateChunk.getPackagePaths()) {
-          try {
-            const updates = updateChunk.getUpdatesBy(localPackage);
-            const changeSet = await engine.applyUpdates(
-              localPackage,
-              cwd,
-              updates
-            );
-            debug(path.relative(cwd, localPackage), changeSet);
-            allChangeSet = new Set([...allChangeSet, ...changeSet]);
-          } catch (error) {
-            if (!bail) {
-              throw error;
-            }
-            // eslint-disable-next-line no-console
-            console.error(
-              `An error occured during update ${path.basename(
-                localPackage
-              )}.\nIt's internal bug.\nPlease report issue from here: ${
-                bugs.url
-              }\n\n${error.stack}`
-            );
+  for (let updateChunk of updateChunks) {
+    const branchName = engine.createBranchName(updateChunk);
+    await engine.inBranch(branchName, async () => {
+      let allChangeSet: Set<strinng> = new Set([]);
+      for (let localPackage of updateChunk.getPackagePaths()) {
+        try {
+          const updates = updateChunk.getUpdatesBy(localPackage);
+          const changeSet = await engine.applyUpdates(
+            localPackage,
+            cwd,
+            updates
+          );
+          debug(path.relative(cwd, localPackage), changeSet);
+          allChangeSet = new Set([...allChangeSet, ...changeSet]);
+        } catch (error) {
+          if (!bail) {
+            throw error;
           }
+          // eslint-disable-next-line no-console
+          console.error(
+            `An error occured during update ${path.basename(
+              localPackage
+            )}.\nIt's internal bug.\nPlease report issue from here: ${
+              bugs.url
+            }\n\n${error.stack}`
+          );
         }
-        debug({ allChangeSet });
-        // FIXME: refactor structure
-        await engine.commit(cwd, updateChunk, allChangeSet, branchName);
-        await engine.createPullRequest(token, cwd, updateChunk, branchName);
-      });
-    }
-  } finally {
-    await git.restoreConfig();
+      }
+      debug({ allChangeSet });
+      // FIXME: refactor structure
+      await engine.commit(cwd, updateChunk, allChangeSet, branchName);
+      await engine.createPullRequest(token, cwd, updateChunk, branchName);
+    });
   }
 };
 
