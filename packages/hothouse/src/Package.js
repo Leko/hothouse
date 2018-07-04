@@ -58,7 +58,7 @@ export default class Package {
     deps[update.name] = replaceSemver(deps[update.name], update.latest);
   }
 
-  getRepositoryUrl(): string {
+  getRepositoryHttpsUrl(): string {
     const gitHost = fromUrl(this.pkgJsonNormalized.repository.url);
     return gitHost.https();
   }

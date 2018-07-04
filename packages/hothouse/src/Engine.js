@@ -173,7 +173,7 @@ export default class Engine {
     const body = createPullRequestMessage(changes);
     const repositoryUrl: string = Package.createFromDirectory(
       rootDirectory
-    ).getRepositoryUrl();
+    ).getRepositoryHttpsUrl();
 
     const hosting = await this.detectHosting({
       repository: { url: repositoryUrl }
