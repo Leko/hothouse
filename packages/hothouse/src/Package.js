@@ -42,10 +42,16 @@ export default class Package {
     return new Package(path.join(dir, "package.json"));
   }
 
-  constructor(pkgJsonPath: string) {
-    this.pkgJsonPath = pkgJsonPath;
-    // $FlowFixMe(dynamic-require)
-    this.pkgJson = require(pkgJsonPath);
+  constructor(pkgJsonPath: string | Object) {
+    if (typeof pkgJsonPath === "string") {
+      this.pkgJsonPath = pkgJsonPath;
+      // $FlowFixMe(dynamic-require)
+      this.pkgJson = require(pkgJsonPath);
+    } else {
+      this.pkgJsonPath = "";
+      this.pkgJson = pkgJsonPath;
+    }
+
     this.pkgJsonNormalized = JSON.parse(JSON.stringify(this.pkgJson)); // Deep clone
     normalize(this.pkgJsonNormalized);
   }

@@ -180,6 +180,7 @@ export default class Engine {
         const meta = await this.packageManager.getPackageMeta(
           packageAnnotation
         );
+        const pkg = new Package(meta);
 
         const currentTag = await this.getTag(
           token,
@@ -193,7 +194,7 @@ export default class Engine {
         });
         changes.push({
           ...update,
-          repositoryUrl: meta.repository ? meta.repository.url : null,
+          repositoryUrl: pkg.getRepositoryHttpsUrl(),
           compareUrl: await this.getCompareUrl(
             token,
             meta,
