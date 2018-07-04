@@ -69,7 +69,9 @@ export default class GitHub implements Hosting {
     const client = this.prepare(token);
     const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     try {
-      return await client.repos.getReleaseByTag({ owner, repo, tag });
+      const release = await client.repos.getReleaseByTag({ owner, repo, tag });
+      const markdown = `# ${release.data.name}\n${release.data.body}`;
+      return markdown;
     } catch (error) {
       if (JSON.parse(error.message).message === "Not Found") {
         return null;
