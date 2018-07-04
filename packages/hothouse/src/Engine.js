@@ -62,26 +62,34 @@ export default class Engine {
     const updates = await this.packageManager.getUpdates(packageDirectory);
     return updates
       .filter(update => {
-        const satisfies = semver.satisfies(update.latest, update.currentRange);
-        if (satisfies) {
+        if (semver.satisfies(update.latest, update.currentRange)) {
           debug(
             `${update.name}@${update.latest} covered in current semver range(${
               update.currentRange
             }). Ignored`
           );
+          return false;
+        }
+        if (semver.lt(update.latest, update.current)) {
+          debug(
+            `${update.name}@${update.latest} less than current version(${
+              update.current
+            }). Ignored`
+          );
+          return false;
         }
 
-        return !satisfies;
+        return true;
       })
       .filter(update => {
-        const every = blacklist.every(name => !minimatch(name, update.name));
-        if (!every) {
+        if (!blacklist.every(name => !minimatch(name, update.name))) {
           debug(
             `${update.name}@${update.latest} match with black list. Ignored`
           );
+          return false;
         }
 
-        return every;
+        return true;
       });
   }
 

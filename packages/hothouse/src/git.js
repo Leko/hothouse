@@ -69,9 +69,12 @@ const impl: GitImpl = {
     }
   },
 
+  // FIXME: Ignore file mode changes
+  // https://github.com/isomorphic-git/isomorphic-git/issues/276
   async checkout(branchName: string): Promise<void> {
     debug("checkout", { branchName });
-    await git.checkout({ ...repo, ref: branchName });
+    // await git.checkout({ ...repo, ref: branchName });
+    cp.spawnSync("git", ["checkout", "-b", branchName], { encoding: "utf8" });
   },
 
   async createBranch(branchName: string): Promise<void> {

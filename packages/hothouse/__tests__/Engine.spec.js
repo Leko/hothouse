@@ -63,6 +63,30 @@ describe("Engine#getUpdates", () => {
     assert.deepStrictEqual(await engine.getUpdates("", []), expected);
   };
 
+  test("Engine#getUpdates must ignore revert updates", async () => {
+    const expected = {
+      name: "prerelease+fixed",
+      current: "1.2.3-beta.30",
+      currentRange: "1.2.3-beta.30",
+      latest: "1.2.3-beta.32",
+      dev: false
+    };
+
+    await assertFilter(
+      [
+        {
+          name: "prerelease+tilde(ignored)",
+          current: "1.2.3-beta.30",
+          currentRange: "1.2.3-beta.30",
+          latest: "1.2.3-beta.29",
+          dev: false
+        },
+        expected
+      ],
+      [expected]
+    );
+  });
+
   test("Engine#getUpdates must ignore covered updates (prerelease)", async () => {
     const expected = {
       name: "prerelease+fixed",
