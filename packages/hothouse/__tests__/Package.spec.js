@@ -28,7 +28,7 @@ test("Package#getRepositoryHttpsUrl can resolve basic repository.url as https", 
   };
   assert.equal(
     pkg.getRepositoryHttpsUrl(),
-    "git+https://github.com/Leko/hothouse.git"
+    "https://github.com/Leko/hothouse.git"
   );
 });
 test("Package#getRepositoryHttpsUrl can resolve shortcut format (parse as GitHub) as https", () => {
@@ -36,7 +36,7 @@ test("Package#getRepositoryHttpsUrl can resolve shortcut format (parse as GitHub
   pkg.pkgJson.repository = "Leko/hothouse";
   assert.equal(
     pkg.getRepositoryHttpsUrl(),
-    "git+https://github.com/Leko/hothouse.git"
+    "https://github.com/Leko/hothouse.git"
   );
 });
 test("Package#getRepositoryHttpsUrl can resolve github shortcut format", () => {
@@ -44,7 +44,7 @@ test("Package#getRepositoryHttpsUrl can resolve github shortcut format", () => {
   pkg.pkgJson.repository = "github:Leko/hothouse";
   assert.equal(
     pkg.getRepositoryHttpsUrl(),
-    "git+https://github.com/Leko/hothouse.git"
+    "https://github.com/Leko/hothouse.git"
   );
 });
 
