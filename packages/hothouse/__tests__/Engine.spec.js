@@ -1,6 +1,7 @@
 /* eslint-env jest */
 // @flow
 import assert from "assert";
+import type { Updates } from "@hothouse/types";
 import Npm from "@hothouse/client-npm";
 import SinglePackage from "../src/SinglePackage";
 import Engine from "../src/Engine";
@@ -37,6 +38,159 @@ describe("Engine#logPrefix", () => {
       gitImpl
     });
     assert.equal(engine.logPrefix, "");
+  });
+});
+
+describe("Engine#getUpdates", () => {
+  const mock = (returns: Updates) =>
+    new class MockNpmClient extends Npm {
+      async getUpdates(packageDirectory: string): Promise<Updates> {
+        return returns;
+      }
+    }();
+
+  const assertFilter = async (
+    updates: Updates,
+    expected: Updates
+  ): Promise<void> => {
+    const engine = new Engine({
+      packageManager: mock(updates),
+      repositoryStructure: new SinglePackage(),
+      dryRun: true,
+      gitImpl
+    });
+
+    assert.deepStrictEqual(await engine.getUpdates("", []), expected);
+  };
+
+  test("Engine#getUpdates must ignore covered updates (prerelease)", async () => {
+    const expected = {
+      name: "prerelease+fixed",
+      current: "1.2.3-beta.30",
+      currentRange: "1.2.3-beta.30",
+      latest: "1.2.3-beta.32",
+      dev: false
+    };
+
+    await assertFilter(
+      [
+        {
+          name: "prerelease+tilde(ignored)",
+          current: "1.2.3-beta.30",
+          currentRange: "~1.2.3-beta.30",
+          latest: "1.2.3-beta.32",
+          dev: false
+        },
+        expected
+      ],
+      [expected]
+    );
+  });
+
+  test("Engine#getUpdates must ignore covered updates (patch)", async () => {
+    const expected = [
+      {
+        name: "patch+fixed",
+        current: "1.2.3",
+        currentRange: "1.2.3",
+        latest: "1.2.4",
+        dev: false
+      }
+    ];
+
+    await assertFilter(
+      [
+        {
+          name: "patch+tilde(ignored)",
+          current: "1.2.3",
+          currentRange: "~1.2.3",
+          latest: "1.2.4",
+          dev: false
+        },
+        {
+          name: "patch+hat(ignored)",
+          current: "1.2.3",
+          currentRange: "^1.2.3",
+          latest: "1.2.4",
+          dev: false
+        },
+        ...expected
+      ],
+      expected
+    );
+  });
+
+  test("Engine#getUpdates must ignore covered updates (minor)", async () => {
+    const expected = [
+      {
+        name: "minor+fixed",
+        current: "1.2.3",
+        currentRange: "1.2.3",
+        latest: "1.3.0",
+        dev: false
+      },
+      {
+        name: "minor+tilde(ignored)",
+        current: "1.2.3",
+        currentRange: "~1.2.3",
+        latest: "1.3.0",
+        dev: false
+      }
+    ];
+
+    await assertFilter(
+      [
+        {
+          name: "minor+hat(ignored)",
+          current: "1.2.3",
+          currentRange: "^1.2.3",
+          latest: "1.3.0",
+          dev: false
+        },
+        ...expected
+      ],
+      expected
+    );
+  });
+
+  test("Engine#getUpdates must ignore covered updates (major)", async () => {
+    const expected = [
+      {
+        name: "major+fixed",
+        current: "1.2.3",
+        currentRange: "1.2.3",
+        latest: "2.0.0",
+        dev: false
+      },
+      {
+        name: "major+tilde(ignored)",
+        current: "1.2.3",
+        currentRange: "~1.2.3",
+        latest: "2.0.0",
+        dev: false
+      },
+      {
+        name: "major+hat(ignored)",
+        current: "1.2.3",
+        currentRange: "^1.2.3",
+        latest: "2.0.0",
+        dev: false
+      }
+    ];
+
+    await assertFilter(
+      [
+        {
+          name: "major+gt(ignored)",
+          current: "1.2.3",
+          currentRange: ">= 1.2.3",
+          latest: "2.0.0",
+          dev: false
+        },
+        ...expected
+      ],
+      expected
+    );
   });
 });
 
