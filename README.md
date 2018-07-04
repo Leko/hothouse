@@ -7,6 +7,17 @@
 
 Continuous dependency update for Node.js project like [Greenkeeper](https://greenkeeper.io/).
 
+## Feature
+
+- Support npm/yarn
+- Support monorepo (Currently, supported [lerna](https://github.com/lerna/lerna) and [Yarn workspaces](https://yarnpkg.com/en/docs/workspaces))
+- Mergeable pull request
+  - Each pull request separated by single package update.
+  - [example1](https://github.com/Leko/zapshot/pull/22), [example2](https://github.com/Leko/zapshot/pull/23)
+- Extensible
+  - Support some npm client by your plugin
+  - Support some monorepo tools by your plugin
+
 ## Install
 
 ### Requirement
