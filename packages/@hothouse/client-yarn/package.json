@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Handle npm packages with Yarn",
   "main": "dist/index.js",
   "scripts": {
@@ -28,12 +28,12 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "dependencies": {
-    "@hothouse/monorepo-lerna": "^0.2.4",
-    "@hothouse/monorepo-yarn-workspaces": "^0.2.4",
+    "@hothouse/monorepo-lerna": "^0.2.5",
+    "@hothouse/monorepo-yarn-workspaces": "^0.2.5",
     "debug": "^3.1.0"
   },
   "devDependencies": {
-    "@hothouse/types": "^0.2.4"
+    "@hothouse/types": "^0.2.5"
   },
   "babel": {
     "extends": "../../../.babelrc"
