@@ -84,9 +84,9 @@ const impl: GitImpl = {
     await git.commit({ ...repo, message });
   },
 
-  async push(token: string, ref?: string): Promise<void> {
+  async push(token: string, remoteUrl: string, ref?: string): Promise<void> {
     debug(`push`, { ref });
-    await git.push({ ...repo, token, ref });
+    await git.push({ ...repo, token, ref, url: remoteUrl });
   },
 
   async getCurrentBranch(): Promise<string> {

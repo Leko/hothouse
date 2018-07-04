@@ -189,7 +189,7 @@ export default class Engine {
       body
     });
     if (!this.dryRun) {
-      await this.gitImpl.push(token, branchName);
+      await this.gitImpl.push(token, repositoryUrl, branchName);
       await hosting.createPullRequest(
         token,
         repositoryUrl,
