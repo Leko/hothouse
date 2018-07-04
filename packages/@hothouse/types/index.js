@@ -82,7 +82,7 @@ export interface GitImpl {
   checkout(branchName: string): Promise<void>;
   createBranch(branchName: string): Promise<void>;
   commit(message: string): Promise<void>;
-  push(token: string, ref?: string): Promise<void>;
+  push(token: string, remoteUrl: string, ref?: string): Promise<void>;
   getCurrentBranch(): Promise<string>;
   inBranch(branchName: string, fn: () => any): Promise<void>;
 }
