@@ -10,6 +10,12 @@ const repo = {
   dir: "."
 };
 
+const configPaths = ["user.name", "user.email"];
+const defaultConfig = {
+  "user.name": "hothouse",
+  "user.email": "hothouse@example.com"
+};
+
 const impl: GitImpl = {
   // This is temporary work around:
   // > Currently only the local $GIT_DIR/config file can be read or written.
@@ -28,10 +34,16 @@ const impl: GitImpl = {
       .map(line => line.split(" "))
       .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {});
 
-    const paths = ["user.name", "user.email"];
-    for (let p of paths) {
-      debug(`Try to set git config: ${p}=${author[p]}`);
-      await git.config({ ...repo, path: p, value: author[p] });
+    for (let p of configPaths) {
+      let value = author[p];
+      if (!value) {
+        debug(
+          `config ${p} does not exists, set default value (${defaultConfig[p]})`
+        );
+        value = defaultConfig[p];
+      }
+      debug(`Try to set git config: ${p}=${value}`);
+      await git.config({ ...repo, path: p, value: value });
     }
   },
   async restoreConfig(): Promise<void> {
@@ -40,8 +52,7 @@ const impl: GitImpl = {
       return;
     }
 
-    const paths = ["user.name", "user.email"];
-    for (let p of paths) {
+    for (let p of configPaths) {
       debug(`Try to remove git config: ${p}`);
       cp.spawnSync("git", ["config", "--unset", p], { encoding: "utf8" });
     }
