@@ -1,6 +1,7 @@
 // @flow
 import path from "path";
 import minimatch from "minimatch";
+import semver from "semver";
 import type {
   Hosting,
   Structure,
@@ -59,9 +60,29 @@ export default class Engine {
     blacklist: Array<string>
   ): Promise<Updates> {
     const updates = await this.packageManager.getUpdates(packageDirectory);
-    return updates.filter(update =>
-      blacklist.every(name => !minimatch(name, update.name))
-    );
+    return updates
+      .filter(update => {
+        const satisfies = semver.satisfies(update.latest, update.currentRange);
+        if (satisfies) {
+          debug(
+            `${update.name}@${update.latest} covered in current semver range(${
+              update.currentRange
+            }). Ignored`
+          );
+        }
+
+        return !satisfies;
+      })
+      .filter(update => {
+        const every = blacklist.every(name => !minimatch(name, update.name));
+        if (!every) {
+          debug(
+            `${update.name}@${update.latest} match with black list. Ignored`
+          );
+        }
+
+        return every;
+      });
   }
 
   async applyUpdates(
