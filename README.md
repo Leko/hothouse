@@ -42,6 +42,18 @@ Please create a new [personal access token](https://github.com/settings/tokens/n
 
 If your packages depends on private repository, please add permission `repo` (Full control of private repositories).
 
+### Run hothouse regularly
+
+`hothouse` expects scheduled jobs to run periodically rather than manually.
+
+Some CI service support scheduling job.  
+Please configure scheduled job to run periodically.
+
+- [Cron Jobs - Travis CI](https://docs.travis-ci.com/user/cron-jobs/#Adding-Cron-Jobs)
+- [Orchestrating Workflows - CircleCI](https://circleci.com/docs/2.0/workflows/#nightly-example)
+
+If you want to add other CI service guide, please send a pull request :)
+
 ### Debug
 
 If you want to debug hothouse, please run with `DEBUG` environment variable like
