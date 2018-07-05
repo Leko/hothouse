@@ -5,6 +5,8 @@ workflows:
       - node-v8
       - node-latest
   e2e:
+    jobs:
+      - update-dependencies
     triggers:
       - schedule:
           cron: "0 0 * * 2" # On every Tuesday 09:00 (JST)
@@ -12,8 +14,6 @@ workflows:
             branches:
               only:
                 - master
-    jobs:
-      - update-dependencies
 
 version: 2
 jobs:
@@ -48,6 +48,8 @@ jobs:
 
   update-dependencies:
     <<: *base
+    docker:
+      - image: node:8
     steps:
       - checkout
       - run: npm install
