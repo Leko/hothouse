@@ -37,9 +37,13 @@ jobs:
       - run: npm run flow
       - run: npm test
       - run: |
-          mkdir /tmp/hothouse-install-test
-          cd /tmp/hothouse-install-test
+          mkdir /tmp/hothouse-install-locally
+          cd /tmp/hothouse-install-locally
           npm install $CIRCLE_WORKING_DIRECTORY/packages/hothouse
+      - run: |
+          mkdir /tmp/hothouse-install-globally
+          cd /tmp/hothouse-install-globally
+          npm install -g $CIRCLE_WORKING_DIRECTORY/packages/hothouse
       - run: bash <(curl -s https://codecov.io/bash)
   node-v8:
     <<: *base
