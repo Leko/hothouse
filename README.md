@@ -52,6 +52,7 @@ Please configure scheduled job to run periodically.
 - [Cron Jobs - Travis CI](https://docs.travis-ci.com/user/cron-jobs/#Adding-Cron-Jobs)
 - [Orchestrating Workflows - CircleCI](https://circleci.com/docs/2.0/workflows/#nightly-example)
 
+Or you can see [our actual config for CircleCI](https://github.com/Leko/hothouse/blob/master/.circleci/config.yml#L10).
 If you want to add other CI service guide, please send a pull request :)
 
 ### Debug
