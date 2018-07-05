@@ -9,11 +9,11 @@ workflows:
       - update-dependencies
     triggers:
       - schedule:
-          cron: "10 * * * *" # On every Tuesday 09:00 (JST)
+          cron: "0 0 * * 2" # On every Tuesday 09:00 (JST)
           filters:
             branches:
               only:
-                - cron-guide
+                - master
 
 version: 2
 jobs:
