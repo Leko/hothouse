@@ -6,14 +6,14 @@ workflows:
       - node-latest
   e2e:
     jobs:
-      - test-job
+      - update-dependencies
     triggers:
       - schedule:
-          cron: "* * * * *" # On every Tuesday 09:00 (JST)
+          cron: "*/5 * * * *" # On every Tuesday 09:00 (JST)
           filters:
             branches:
               only:
-                - cron-guide
+                - master
 
 version: 2
 jobs:
@@ -56,10 +56,3 @@ jobs:
       - run: npm run bootstrap
       - run: npm install -g hothouse
       - run: hothouse -t $GITHUB_TOKEN
-
-  test-job:
-    <<: *base
-    docker:
-      - image: node:8
-    steps:
-      - run: echo Hello world
