@@ -1,12 +1,19 @@
 // @flow
-import parse from "git-url-parse";
+import { URL } from "url";
 import octokit from "@octokit/rest";
 import type { Hosting } from "@hothouse/types";
+import { fromUrl } from "hosted-git-info";
 import { getTagsQuery } from "./graphql";
 
 export const parseRepositoryUrl = (url: string): [string, string] => {
-  const { owner, name } = parse(url);
-  return [owner, name];
+  const parsed = fromUrl(url);
+  if (!parsed) {
+    const urlObj = new URL(url);
+    const [owner, repo] = urlObj.pathname.split("/").slice(1);
+    return [owner, repo];
+  }
+  const { user, project } = parsed;
+  return [user, project];
 };
 
 export default class GitHub implements Hosting {
