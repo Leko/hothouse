@@ -2,6 +2,7 @@
 import path from "path";
 import minimatch from "minimatch";
 import semver from "semver";
+import filter from "lodash/filter";
 import type {
   Hosting,
   Structure,
@@ -10,7 +11,10 @@ import type {
   UpdateDetails,
   GitImpl
 } from "@hothouse/types";
+import PackageManagerResolver from "./PackageManagerResolver";
+import RepositoryStructureResolver from "./RepositoryStructureResolver";
 import type UpdateChunk from "./UpdateChunk";
+import { split } from "./UpdateChunk";
 import hostings, { UnknownHosting } from "./Hosting";
 import Package from "./Package";
 import md2html from "./md2html";
@@ -22,33 +26,120 @@ import {
 
 const debug = require("debug")("hothouse:Engine");
 
+type EngineOptions = {|
+  token: string,
+  bail: boolean,
+  ignore: Array<string>,
+  perPackage: boolean,
+  dryRun: boolean,
+  packageManagers: Array<string>,
+  repositoryStructures: Array<string>,
+  gitImpl: GitImpl
+|};
+
 export default class Engine {
-  repositoryStructure: Structure;
-  packageManager: PackageManager;
-  gitImpl: GitImpl;
+  token: string;
+  bail: boolean;
+  ignore: Array<string>;
+  perPackage: boolean;
   dryRun: boolean;
+  repositoryStructureResolver: RepositoryStructureResolver;
+  packageManagerResolver: PackageManagerResolver;
+  gitImpl: GitImpl;
+
+  packageManager: PackageManager;
+  repositoryStructure: Structure;
 
   constructor({
-    packageManager,
-    repositoryStructure,
+    token,
+    bail,
+    ignore,
+    perPackage,
     dryRun,
+    packageManagers,
+    repositoryStructures,
     gitImpl
-  }: {|
-    packageManager: PackageManager,
-    repositoryStructure: Structure,
-    dryRun: boolean,
-    gitImpl: GitImpl
-  |}) {
-    this.repositoryStructure = repositoryStructure;
-    this.packageManager = packageManager;
+  }: EngineOptions) {
+    this.token = token;
+    this.bail = bail;
+    this.ignore = ignore;
+    this.perPackage = perPackage;
     this.dryRun = dryRun;
     this.gitImpl = gitImpl;
+    this.packageManagerResolver = new PackageManagerResolver(
+      filter(packageManagers)
+    );
+    this.repositoryStructureResolver = new RepositoryStructureResolver(
+      filter(repositoryStructures)
+    );
 
     debug(`dryRun=${String(dryRun)}`);
   }
 
   get logPrefix(): string {
     return this.dryRun ? "(dryRun) " : "";
+  }
+
+  async run(directory: string): Promise<void> {
+    // FIXME: Omit this
+    this.packageManager = await this.packageManagerResolver.detect(directory);
+    // FIXME: Omit this
+    this.repositoryStructure = await this.repositoryStructureResolver.detect(
+      directory
+    );
+
+    // FIXME: Parallelize
+    const allUpdates = {};
+    for (let localPackage of await this.getPackages(directory)) {
+      const updates = await this.getUpdates(localPackage, this.ignore);
+      allUpdates[localPackage] = updates;
+    }
+    if (Object.keys(allUpdates).length === 0) {
+      return;
+    }
+
+    const updateChunks = split(allUpdates, this.perPackage);
+    debug(`Updates are:`, allUpdates);
+    debug(`UpdateChunks are:`, updateChunks);
+
+    for (let updateChunk of updateChunks) {
+      const branchName = this.createBranchName(updateChunk);
+      await this.inBranch(branchName, async () => {
+        let allChangeSet: Set<string> = new Set([]);
+        for (let localPackage of updateChunk.getPackagePaths()) {
+          try {
+            const updates = updateChunk.getUpdatesBy(localPackage);
+            const changeSet = await this.applyUpdates(
+              localPackage,
+              directory,
+              updates
+            );
+            debug(path.relative(directory, localPackage), changeSet);
+            allChangeSet = new Set([...allChangeSet, ...changeSet]);
+          } catch (error) {
+            if (!this.bail) {
+              throw error;
+            }
+
+            // eslint-disable-next-line no-console
+            console.error(
+              `An error occured during update ${path.basename(localPackage)}\n${
+                error.stack
+              }`
+            );
+          }
+        }
+        debug({ allChangeSet });
+        // FIXME: refactor structure
+        await this.commit(directory, updateChunk, allChangeSet, branchName);
+        await this.createPullRequest(
+          this.token,
+          directory,
+          updateChunk,
+          branchName
+        );
+      });
+    }
   }
 
   async getPackages(directory: string): Promise<Array<string>> {
