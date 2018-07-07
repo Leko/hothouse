@@ -46,7 +46,7 @@ const main = async (options: CLIOptions, cwd) => {
 };
 
 main(cliOptions.argv, process.cwd()).catch(e => {
-  console.log(chalk.red(e.stack)); // eslint-disable-line no-console
+  console.error(chalk.red(e.stack)); // eslint-disable-line no-console
   if (e instanceof InternalError) {
     // eslint-disable-next-line no-console
     console.error(
