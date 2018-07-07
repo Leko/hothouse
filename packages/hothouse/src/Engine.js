@@ -32,8 +32,8 @@ type EngineOptions = {|
   ignore: Array<string>,
   perPackage: boolean,
   dryRun: boolean,
-  packageManagers: Array<string>,
-  repositoryStructures: Array<string>,
+  packageManager: ?string,
+  repositoryStructure: ?string,
   gitImpl: GitImpl
 |};
 
@@ -47,7 +47,6 @@ export default class Engine {
   packageManagerResolver: PackageManagerResolver;
   gitImpl: GitImpl;
 
-  packageManager: PackageManager;
   repositoryStructure: Structure;
 
   constructor({
@@ -56,8 +55,8 @@ export default class Engine {
     ignore,
     perPackage,
     dryRun,
-    packageManagers,
-    repositoryStructures,
+    packageManager,
+    repositoryStructure,
     gitImpl
   }: EngineOptions) {
     this.token = token;
@@ -67,10 +66,15 @@ export default class Engine {
     this.dryRun = dryRun;
     this.gitImpl = gitImpl;
     this.packageManagerResolver = new PackageManagerResolver(
-      filter(packageManagers)
+      filter([packageManager, "@hothouse/client-yarn", "@hothouse/client-npm"])
     );
     this.repositoryStructureResolver = new RepositoryStructureResolver(
-      filter(repositoryStructures)
+      filter([
+        repositoryStructure,
+        "@hothouse/monorepo-yarn-workspaces",
+        "@hothouse/monorepo-lerna",
+        "./SinglePackage"
+      ])
     );
 
     debug(`dryRun=${String(dryRun)}`);
@@ -80,18 +84,24 @@ export default class Engine {
     return this.dryRun ? "(dryRun) " : "";
   }
 
+  async getPackageManager(dir: string): Promise<PackageManager> {
+    return this.packageManagerResolver.detect(dir);
+  }
+  async repositoryStructureResolver(dir: string): Promise<Structure> {
+    return this.repositoryStructureResolver.detect(dir);
+  }
+
   async run(directory: string): Promise<void> {
-    // FIXME: Omit this
-    this.packageManager = await this.packageManagerResolver.detect(directory);
-    // FIXME: Omit this
-    this.repositoryStructure = await this.repositoryStructureResolver.detect(
-      directory
-    );
+    const packageManager = await this.getPackageManager(directory);
 
     // FIXME: Parallelize
     const allUpdates = {};
     for (let localPackage of await this.getPackages(directory)) {
-      const updates = await this.getUpdates(localPackage, this.ignore);
+      const updates = await this.getUpdates(
+        packageManager,
+        localPackage,
+        this.ignore
+      );
       allUpdates[localPackage] = updates;
     }
     if (Object.keys(allUpdates).length === 0) {
@@ -147,10 +157,11 @@ export default class Engine {
   }
 
   async getUpdates(
+    packageManager: PackageManager,
     packageDirectory: string,
     blacklist: Array<string>
   ): Promise<Updates> {
-    const updates = await this.packageManager.getUpdates(packageDirectory);
+    const updates = await packageManager.getUpdates(packageDirectory);
     return updates
       .filter(update => {
         if (semver.satisfies(update.latest, update.currentRange)) {
@@ -190,6 +201,7 @@ export default class Engine {
     updates: Updates
   ): Promise<Set<string>> {
     const pkg = Package.createFromDirectory(packageDirectory);
+    const packageManager = await this.getPackageManager(rootDirectory);
     updates.forEach(update => {
       debug(
         `${this.logPrefix}Apply update (${update.name} ${update.current}->${
@@ -204,7 +216,7 @@ export default class Engine {
     debug(
       `${this.logPrefix}Try to update dependencies in ${path.basename(
         packageDirectory
-      )} with ${this.packageManager.constructor.name}`
+      )} with ${packageManager.constructor.name}`
     );
     if (this.dryRun) {
       return new Set([]);
@@ -213,7 +225,7 @@ export default class Engine {
     return this.repositoryStructure.install(
       packageDirectory,
       rootDirectory,
-      this.packageManager
+      packageManager
     );
   }
 
@@ -268,17 +280,22 @@ export default class Engine {
     for (let pkgPath in updateChunk.allUpdates) {
       for (let update of updateChunk.allUpdates[pkgPath]) {
         const packageAnnotation = `${update.name}@${update.latest}`;
-        const meta = await this.packageManager.getPackageMeta(
-          packageAnnotation
-        );
+        const packageManager = await this.getPackageManager(rootDirectory);
+        const meta = await packageManager.getPackageMeta(packageAnnotation);
         const pkg = new Package(meta);
 
         const currentTag = await this.getTag(
+          packageManager,
           token,
           update.name,
           update.current
         );
-        const latestTag = await this.getTag(token, update.name, update.latest);
+        const latestTag = await this.getTag(
+          packageManager,
+          token,
+          update.name,
+          update.latest
+        );
         debug(packageAnnotation, {
           currentTag,
           latestTag
@@ -342,6 +359,7 @@ export default class Engine {
   }
 
   async getTag(
+    packageManager: PackageManager,
     token: string,
     packageName: string,
     version: string
@@ -350,7 +368,7 @@ export default class Engine {
     debug(`Try to fetch tag ${packageAnnotation}`);
 
     try {
-      const meta = await this.packageManager.getPackageMeta(packageAnnotation);
+      const meta = await packageManager.getPackageMeta(packageAnnotation);
       const hosting = await this.detectHosting(meta);
 
       const commonTagNames = [`v${version}`, version];
