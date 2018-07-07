@@ -1,12 +1,16 @@
 // @flow
 import yargs from "yargs";
-import { version } from "../package.json";
+import type { PackageManager, Structure } from "@hothouse/types";
+import { version } from "../../package.json";
 
 export type CLIOptions = {
   ignore: Array<string>,
+  bail: boolean,
   perPackage: boolean,
   token: string,
-  dryRun: boolean
+  dryRun: boolean,
+  packageManager: PackageManager,
+  repositoryStructure: Structure
 };
 
 export default yargs

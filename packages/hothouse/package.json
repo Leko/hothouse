@@ -3,7 +3,7 @@
   "version": "0.3.1",
   "description": "Continuous dependency update for Node.js project",
   "bin": {
-    "hothouse": "./dist/cli.js"
+    "hothouse": "./dist/cli/index.js"
   },
   "directories": {
     "test": "test"
