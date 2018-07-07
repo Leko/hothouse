@@ -5,8 +5,8 @@ import semver from "semver";
 import filter from "lodash/filter";
 import type {
   Hosting,
-  Structure,
   PackageManager,
+  Structure,
   Updates,
   UpdateDetails,
   GitImpl
@@ -47,8 +47,6 @@ export default class Engine {
   packageManagerResolver: PackageManagerResolver;
   gitImpl: GitImpl;
 
-  repositoryStructure: Structure;
-
   constructor({
     token,
     bail,
@@ -87,16 +85,17 @@ export default class Engine {
   async getPackageManager(dir: string): Promise<PackageManager> {
     return this.packageManagerResolver.detect(dir);
   }
-  async repositoryStructureResolver(dir: string): Promise<Structure> {
-    return this.repositoryStructureResolver.detect(dir);
-  }
 
   async run(directory: string): Promise<void> {
-    const packageManager = await this.getPackageManager(directory);
+    const packageManager = await this.packageManagerResolver.detect(directory);
+    const repositoryStructure = await this.repositoryStructureResolver.detect(
+      directory
+    );
 
     // FIXME: Parallelize
     const allUpdates = {};
-    for (let localPackage of await this.getPackages(directory)) {
+    const packages = await repositoryStructure.getPackages(directory);
+    for (let localPackage of packages) {
       const updates = await this.getUpdates(
         packageManager,
         localPackage,
@@ -122,6 +121,7 @@ export default class Engine {
             const changeSet = await this.applyUpdates(
               localPackage,
               directory,
+              repositoryStructure,
               updates
             );
             debug(path.relative(directory, localPackage), changeSet);
@@ -150,10 +150,6 @@ export default class Engine {
         );
       });
     }
-  }
-
-  async getPackages(directory: string): Promise<Array<string>> {
-    return this.repositoryStructure.getPackages(directory);
   }
 
   async getUpdates(
@@ -198,6 +194,7 @@ export default class Engine {
   async applyUpdates(
     packageDirectory: string,
     rootDirectory: string,
+    repositoryStructure: Structure,
     updates: Updates
   ): Promise<Set<string>> {
     const pkg = Package.createFromDirectory(packageDirectory);
@@ -222,7 +219,7 @@ export default class Engine {
       return new Set([]);
     }
     await pkg.save();
-    return this.repositoryStructure.install(
+    return repositoryStructure.install(
       packageDirectory,
       rootDirectory,
       packageManager
