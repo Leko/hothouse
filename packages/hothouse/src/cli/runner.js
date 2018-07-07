@@ -22,25 +22,14 @@ const main = async (env: RunningEnvironment) => {
     packageManager,
     repositoryStructure
   } = env.cliOptions;
-  const packageManagers = [
-    packageManager,
-    "@hothouse/client-yarn",
-    "@hothouse/client-npm"
-  ];
-  const repositoryStructures = [
-    repositoryStructure,
-    "@hothouse/monorepo-yarn-workspaces",
-    "@hothouse/monorepo-lerna",
-    "./SinglePackage"
-  ];
 
   const engine = new Engine({
     token,
     bail,
     ignore,
     perPackage,
-    packageManagers,
-    repositoryStructures,
+    packageManager,
+    repositoryStructure,
     dryRun,
     gitImpl: env.gitImpl
   });
