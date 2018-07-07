@@ -3,7 +3,6 @@
 import assert from "assert";
 import type { Updates } from "@hothouse/types";
 import Npm from "@hothouse/client-npm";
-import SinglePackage from "../src/SinglePackage";
 import Engine from "../src/Engine";
 
 const gitImpl = {
