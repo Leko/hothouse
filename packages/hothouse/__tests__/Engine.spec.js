@@ -19,12 +19,14 @@ const gitImpl = {
 };
 
 describe("Engine#logPrefix", () => {
-  const packageManager = new Npm();
-  const repositoryStructure = new SinglePackage();
   test("Engine#logPrefix returns '(dryRun) ' when dryRun=true", () => {
     const engine = new Engine({
-      packageManager,
-      repositoryStructure,
+      token: "xxx",
+      bail: false,
+      ignore: [],
+      perPackage: true,
+      packageManager: null,
+      repositoryStructure: null,
       dryRun: true,
       gitImpl
     });
@@ -32,8 +34,12 @@ describe("Engine#logPrefix", () => {
   });
   test("Engine#logPrefix returns empty string when dryRun=false", () => {
     const engine = new Engine({
-      packageManager,
-      repositoryStructure,
+      token: "xxx",
+      bail: false,
+      ignore: [],
+      perPackage: true,
+      packageManager: null,
+      repositoryStructure: null,
       dryRun: false,
       gitImpl
     });
@@ -54,13 +60,20 @@ describe("Engine#getUpdates", () => {
     expected: Updates
   ): Promise<void> => {
     const engine = new Engine({
-      packageManager: mock(updates),
-      repositoryStructure: new SinglePackage(),
+      token: "xxx",
+      bail: false,
+      ignore: [],
+      perPackage: true,
+      packageManager: null,
+      repositoryStructure: null,
       dryRun: true,
       gitImpl
     });
 
-    assert.deepStrictEqual(await engine.getUpdates("", []), expected);
+    assert.deepStrictEqual(
+      await engine.getUpdates(mock(updates), "", []),
+      expected
+    );
   };
 
   test("Engine#getUpdates must ignore revert updates", async () => {
@@ -219,12 +232,14 @@ describe("Engine#getUpdates", () => {
 });
 
 describe("Engine#inBranch", () => {
-  const packageManager = new Npm();
-  const repositoryStructure = new SinglePackage();
   test("Engine#inBranch must not call GitImpl.inBranch when dryRun=true", () => {
     const engine = new Engine({
-      packageManager,
-      repositoryStructure,
+      token: "xxx",
+      bail: false,
+      ignore: [],
+      perPackage: true,
+      packageManager: null,
+      repositoryStructure: null,
       dryRun: true,
       gitImpl
     });
@@ -238,8 +253,12 @@ describe("Engine#inBranch", () => {
   });
   test("Engine#inBranch must call GitImpl.inBranch when dryRun=false", () => {
     const engine = new Engine({
-      packageManager,
-      repositoryStructure,
+      token: "xxx",
+      bail: false,
+      ignore: [],
+      perPackage: true,
+      packageManager: null,
+      repositoryStructure: null,
       dryRun: false,
       gitImpl
     });
