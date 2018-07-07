@@ -8,7 +8,7 @@ import gitImpl from "../git";
 import { InternalError } from "../errors";
 
 runner({
-  cliOptions: cliOptions.argv,
+  cliOptions: cliOptions.parse(),
   cwd: process.cwd(),
   gitImpl
 }).catch(e => {
