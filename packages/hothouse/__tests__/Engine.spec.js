@@ -1,8 +1,6 @@
 /* eslint-env jest */
 // @flow
 import assert from "assert";
-import type { Updates } from "@hothouse/types";
-import Npm from "@hothouse/client-npm";
 import Engine from "../src/Engine";
 
 const gitImpl = {

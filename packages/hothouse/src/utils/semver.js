@@ -1,6 +1,5 @@
 // @flow
 import semver from "semver";
-import type { Update } from "@hothouse/types";
 
 export const replace = (
   fromVersionRange: string,

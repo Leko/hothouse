@@ -1,8 +1,6 @@
 // @flow
 import minimatch from "minimatch";
 
-const debug = require("debug")("hothouse:BlackList");
-
 export default class BlackList {
   ignores: Array<string>;
 
