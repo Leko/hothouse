@@ -29,6 +29,13 @@ export type UpdateDetail = {|
 |};
 export type UpdateDetails = Array<UpdateDetail>;
 
+export type PullRequest = {|
+  url: string
+|};
+export type ApplyResult = {|
+  pullRequest: PullRequest
+|};
+
 export interface PackageManager {
   match(directory: string): Promise<boolean>;
   getLockFileName(): string;
@@ -73,7 +80,7 @@ export interface Hosting {
     head: string,
     title: string,
     body: string
-  ): Promise<string>;
+  ): Promise<PullRequest>;
   getDefaultBranch(token: string, repositoryUrl: string): Promise<string>;
 }
 

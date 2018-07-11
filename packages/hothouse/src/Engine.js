@@ -6,6 +6,7 @@ import type {
   Structure,
   Updates,
   UpdateDetails,
+  ApplyResult,
   GitImpl
 } from "@hothouse/types";
 import type UpdateChunk from "./UpdateChunk";
@@ -109,7 +110,7 @@ export default class Engine {
       );
 
       // FIXME: Parallelize
-      const branches: Array<ApplyResult> = [];
+      const branches: Array<string> = [];
       for (let updateChunk of chunks) {
         const branchName = this.createBranchName(updateChunk);
         branches.push(branchName);
@@ -153,7 +154,7 @@ export default class Engine {
         });
       }
 
-      const results = await Promise.all(
+      const results: Array<ApplyResult> = await Promise.all(
         chunks
           .map((chunk, i) => ({
             updateChunk: chunk,

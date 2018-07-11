@@ -1,5 +1,5 @@
 // @flow
-import type { ApplyUpdatesAction } from "../actions";
+import type { ApplyUpdatesAction, ApplyResult } from "../actions";
 import type { Environment } from "./configure";
 import {
   createPullRequestTitle,
@@ -11,7 +11,7 @@ const debug = require("debug")("hothouse:applyUpdates");
 export default async (
   action: ApplyUpdatesAction,
   env: Environment
-): Promise<any> => {
+): Promise<ApplyResult> => {
   const { token, hosting, pkg, dryRun } = env;
   const { updateDetails, source, base } = action.payload;
   const repositoryUrl = pkg.getRepositoryHttpsUrl();
@@ -27,7 +27,7 @@ export default async (
     body
   });
   if (!dryRun) {
-    return hosting.createPullRequest(
+    const pullRequest = hosting.createPullRequest(
       token,
       repositoryUrl,
       base,
@@ -35,5 +35,6 @@ export default async (
       title,
       body
     );
+    return { pullRequest };
   }
 };

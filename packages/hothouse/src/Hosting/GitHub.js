@@ -1,7 +1,7 @@
 // @flow
 import { URL } from "url";
 import octokit from "@octokit/rest";
-import type { Hosting } from "@hothouse/types";
+import type { Hosting, PullRequest } from "@hothouse/types";
 import { fromUrl } from "hosted-git-info";
 import { getTagsQuery } from "./graphql";
 
@@ -111,7 +111,7 @@ export default class GitHub implements Hosting {
     head: string,
     title: string,
     body: string
-  ): Promise<string> {
+  ): Promise<PullRequest> {
     const client = this.prepare(token);
     const [owner, repo] = parseRepositoryUrl(repositoryUrl);
     const result = await client.pullRequests.create({
@@ -122,7 +122,9 @@ export default class GitHub implements Hosting {
       title,
       body
     });
-    return result.data.html_url;
+    return {
+      url: result.data.html_url
+    };
   }
 
   async getDefaultBranch(

@@ -1,5 +1,5 @@
 // @flow
-import type { Hosting } from "@hothouse/types";
+import type { Hosting, PullRequest } from "@hothouse/types";
 
 export default class UnknownHosting implements Hosting {
   async match(repositoryUrl: string): Promise<boolean> {
@@ -46,8 +46,8 @@ export default class UnknownHosting implements Hosting {
     head: string,
     title: string,
     body: string
-  ): Promise<string> {
-    return "";
+  ): Promise<PullRequest> {
+    return { url: "" };
   }
 
   async getDefaultBranch(

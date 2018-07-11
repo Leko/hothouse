@@ -1,5 +1,5 @@
 // @flow
-import type { UpdateDetail } from "@hothouse/types";
+import type { UpdateDetails } from "@hothouse/types";
 import type { Config } from "./worker";
 import type UpdateChunk from "./UpdateChunk";
 
