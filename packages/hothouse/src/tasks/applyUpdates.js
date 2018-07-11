@@ -1,5 +1,6 @@
 // @flow
-import type { ApplyUpdatesAction, ApplyResult } from "../actions";
+import type { ApplyResult } from "@hothouse/types";
+import type { ApplyUpdatesAction } from "../actions";
 import type { Environment } from "./configure";
 import {
   createPullRequestTitle,
@@ -26,8 +27,10 @@ export default async (
     title,
     body
   });
+
+  let pullRequest = { url: "" };
   if (!dryRun) {
-    const pullRequest = hosting.createPullRequest(
+    pullRequest = await hosting.createPullRequest(
       token,
       repositoryUrl,
       base,
@@ -35,6 +38,6 @@ export default async (
       title,
       body
     );
-    return { pullRequest };
   }
+  return { pullRequest };
 };
