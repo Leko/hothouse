@@ -49,6 +49,7 @@
     "remark-html": "^7.0.0",
     "remark-parse": "^5.0.0",
     "semver": "^5.5.0",
+    "threads": "^0.12.0",
     "unified": "^7.0.0",
     "yargs": "^11.0.0"
   },

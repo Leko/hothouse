@@ -18,6 +18,7 @@ const main = async (env: RunningEnvironment) => {
     bail,
     ignore,
     perPackage,
+    concurrency,
     dryRun,
     packageManager,
     repositoryStructure
@@ -30,6 +31,7 @@ const main = async (env: RunningEnvironment) => {
     perPackage,
     packageManager,
     repositoryStructure,
+    concurrency,
     dryRun,
     gitImpl: env.gitImpl
   });

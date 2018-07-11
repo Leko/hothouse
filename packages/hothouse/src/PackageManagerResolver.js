@@ -4,19 +4,23 @@ import type { PackageManager } from "@hothouse/types";
 const debug = require("debug")("hothouse:PackageManagerResolver");
 
 export default class PackageManagerResolver {
-  plugins: Array<PackageManager>;
+  pluginNames: Array<string> = [
+    "@hothouse/client-yarn",
+    "@hothouse/client-npm"
+  ];
 
-  constructor(pluginNames: Array<string>) {
-    this.plugins = pluginNames.map(pluginName => {
-      // $FlowFixMe(allow-dynamic-require)
-      const Plugin = require(pluginName);
-      return new Plugin();
-    });
+  addPlugin(pluginName: string): void {
+    this.pluginNames.push(pluginName);
   }
 
   async detect(directory: string): Promise<PackageManager> {
     debug(`Detect package manager in: ${directory}`);
-    for (let plugin of this.plugins) {
+    const plugins = this.pluginNames.map(pluginName => {
+      // $FlowFixMe(allow-dynamic-require)
+      const Plugin = require(pluginName);
+      return new Plugin();
+    });
+    for (let plugin of plugins) {
       const matched = await plugin.match(directory);
       debug(`${plugin.constructor.name}: matched=${String(matched)}`);
       if (matched) {
