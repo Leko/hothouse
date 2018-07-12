@@ -47,7 +47,7 @@ export default class UnknownHosting implements Hosting {
     title: string,
     body: string
   ): Promise<PullRequest> {
-    return { url: "" };
+    return { url: "", title: "" };
   }
 
   async getDefaultBranch(

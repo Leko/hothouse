@@ -1,12 +1,13 @@
 // @flow
-import type { GitImpl } from "@hothouse/types";
+import type { GitImpl, Reporter } from "@hothouse/types";
 import type { CLIOptions } from "./options";
 import Engine from "../Engine";
 
 type RunningEnvironment = {
   cliOptions: CLIOptions,
   cwd: string,
-  gitImpl: GitImpl
+  gitImpl: GitImpl,
+  reporter: Reporter
 };
 
 const debug = require("debug")("hothouse:cli");
@@ -33,6 +34,7 @@ const main = async (env: RunningEnvironment) => {
     repositoryStructure,
     concurrency,
     dryRun,
+    reporter: env.reporter,
     gitImpl: env.gitImpl
   });
 

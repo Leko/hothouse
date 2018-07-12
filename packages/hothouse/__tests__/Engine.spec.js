@@ -1,6 +1,7 @@
 /* eslint-env jest */
 // @flow
 import assert from "assert";
+import type { Updates, ApplyResult, Reporter } from "@hothouse/types";
 import Engine from "../src/Engine";
 
 const gitImpl = {
@@ -14,6 +15,17 @@ const gitImpl = {
   },
   async inBranch(branchName: string, fn: () => any): Promise<void> {}
 };
+const reporter: Reporter = {
+  async reportError(Error): Promise<void> {},
+  async reportUpdates(
+    cwd: string,
+    allUpdates: { [string]: Updates }
+  ): Promise<void> {},
+  async reportApplyResult(
+    cwd: string,
+    applyResult: Array<ApplyResult>
+  ): Promise<void> {}
+};
 
 describe("Engine#logPrefix", () => {
   test("Engine#logPrefix returns '(dryRun) ' when dryRun=true", () => {
@@ -26,6 +38,7 @@ describe("Engine#logPrefix", () => {
       packageManager: null,
       repositoryStructure: null,
       dryRun: true,
+      reporter,
       gitImpl
     });
     assert.equal(engine.logPrefix, "(dryRun) ");
@@ -40,6 +53,7 @@ describe("Engine#logPrefix", () => {
       packageManager: null,
       repositoryStructure: null,
       dryRun: false,
+      reporter,
       gitImpl
     });
     assert.equal(engine.logPrefix, "");
@@ -67,6 +81,7 @@ describe("Engine#logPrefix", () => {
 //       packageManager: null,
 //       repositoryStructure: null,
 //       dryRun: true,
+//       reporter,
 //       gitImpl
 //     });
 
@@ -242,6 +257,7 @@ describe("Engine#inBranch", () => {
       packageManager: null,
       repositoryStructure: null,
       dryRun: true,
+      reporter,
       gitImpl
     });
     const spy = jest.spyOn(gitImpl, "inBranch");
@@ -262,6 +278,7 @@ describe("Engine#inBranch", () => {
       packageManager: null,
       repositoryStructure: null,
       dryRun: false,
+      reporter,
       gitImpl
     });
     const spy = jest.spyOn(gitImpl, "inBranch");

@@ -29,6 +29,7 @@ export type UpdateDetail = {|
 export type UpdateDetails = Array<UpdateDetail>;
 
 export type PullRequest = {|
+  title: string,
   url: string
 |};
 export type ApplyResult = {|
@@ -91,4 +92,13 @@ export interface GitImpl {
   push(token: string, remoteUrl: string, ref: string): Promise<void>;
   getCurrentBranch(): Promise<string>;
   inBranch(branchName: string, fn: () => any): Promise<void>;
+}
+
+export interface Reporter {
+  reportError(Error): Promise<void>;
+  reportUpdates(cwd: string, allUpdates: { [string]: Updates }): Promise<void>;
+  reportApplyResult(
+    cwd: string,
+    applyResult: Array<ApplyResult>
+  ): Promise<void>;
 }
