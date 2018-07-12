@@ -91,7 +91,8 @@ export default class Engine {
       hosting
     } = await configure(actions.configure(config));
     const pool = new WorkerPool({
-      concurrency: this.concurrency
+      concurrency: this.concurrency,
+      reporter: this.reporter
     });
 
     try {

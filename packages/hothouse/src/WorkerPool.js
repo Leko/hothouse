@@ -2,21 +2,25 @@
 import path from "path";
 import times from "lodash/times";
 import { Pool } from "threads";
+import type { Reporter } from "@hothouse/types";
 import type { Action } from "./actions";
 import type { Config } from "./worker";
 import * as actions from "./actions";
 
 type WorkerInit = {|
-  concurrency: number
+  concurrency: number,
+  reporter: Reporter
 |};
 export default class WorkerPool {
   options: WorkerInit;
   pool: Pool;
 
   constructor(options: WorkerInit) {
+    const { concurrency, reporter } = options;
+
     this.options = options;
-    this.pool = new Pool(options.concurrency);
-    this.pool.on("error", console.error);
+    this.pool = new Pool(concurrency);
+    this.pool.on("error", e => reporter.reportError(e));
   }
 
   async configure(config: Config): Promise<void> {
