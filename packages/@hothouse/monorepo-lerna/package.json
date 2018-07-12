@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.3.2",
+  "version": "0.4.0",
   "description": "Handle repository structure with Lerna",
   "main": "./dist/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "glob": "^7.1.2"
   },
   "devDependencies": {
-    "@hothouse/types": "^0.3.2"
+    "@hothouse/types": "^0.4.0"
   },
   "babel": {
     "extends": "../../../.babelrc"
