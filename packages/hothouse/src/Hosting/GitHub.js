@@ -123,6 +123,7 @@ export default class GitHub implements Hosting {
       body
     });
     return {
+      title,
       url: result.data.html_url
     };
   }
