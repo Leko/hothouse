@@ -4,8 +4,7 @@ export type Semver = string;
 export type Outdated = {|
   current: Semver,
   wanted: Semver,
-  latest: Semver,
-  location: string
+  latest: Semver
 |};
 
 export type Update = {|
