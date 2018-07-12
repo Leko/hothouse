@@ -28,7 +28,7 @@ export default async (
     body
   });
 
-  let pullRequest = { url: "" };
+  let pullRequest = { title: "(dry run)", url: "(dry run)" };
   if (!dryRun) {
     pullRequest = await hosting.createPullRequest(
       token,

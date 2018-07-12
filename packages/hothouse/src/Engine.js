@@ -7,6 +7,7 @@ import type {
   Updates,
   UpdateDetails,
   ApplyResult,
+  Reporter,
   GitImpl
 } from "@hothouse/types";
 import type UpdateChunk from "./UpdateChunk";
@@ -28,6 +29,7 @@ type EngineOptions = {|
   dryRun: boolean,
   packageManager: ?string,
   repositoryStructure: ?string,
+  reporter: Reporter,
   gitImpl: GitImpl
 |};
 
@@ -38,6 +40,7 @@ export default class Engine {
   perPackage: boolean;
   dryRun: boolean;
   concurrency: number;
+  reporter: Reporter;
   gitImpl: GitImpl;
   packageManager: ?string;
   repositoryStructure: ?string;
@@ -51,6 +54,7 @@ export default class Engine {
     concurrency,
     packageManager,
     repositoryStructure,
+    reporter,
     gitImpl
   }: EngineOptions) {
     this.token = token;
@@ -59,6 +63,7 @@ export default class Engine {
     this.perPackage = perPackage;
     this.dryRun = dryRun;
     this.concurrency = concurrency;
+    this.reporter = reporter;
     this.gitImpl = gitImpl;
     this.packageManager = packageManager;
     this.repositoryStructure = repositoryStructure;
@@ -103,6 +108,10 @@ export default class Engine {
         )
       );
       const allUpdates = zipObject(localPackages, updatesList);
+      await this.reporter.reportUpdates(directory, allUpdates);
+      if (updatesList.every(updates => updates.length === 0)) {
+        return [];
+      }
 
       const chunks = split(allUpdates, this.perPackage);
       const updateDetails: Array<UpdateDetails> = await Promise.all(
@@ -164,8 +173,12 @@ export default class Engine {
           }))
           .map(payload => pool.dispatch(actions.applyUpdates(payload)))
       );
+      await this.reporter.reportApplyResult(directory, results);
 
       return results;
+    } catch (error) {
+      await this.reporter.reportError(error);
+      throw error;
     } finally {
       await pool.terminate();
     }

@@ -16,6 +16,7 @@ export default class WorkerPool {
   constructor(options: WorkerInit) {
     this.options = options;
     this.pool = new Pool(options.concurrency);
+    this.pool.on("error", console.error);
   }
 
   async configure(config: Config): Promise<void> {
