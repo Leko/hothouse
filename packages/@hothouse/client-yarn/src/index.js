@@ -1,4 +1,5 @@
 // @flow
+import { EOL } from "os";
 import fs from "fs";
 import path from "path";
 import cp from "child_process";
@@ -39,25 +40,35 @@ class Yarn implements PackageManager {
     }
 
     // $FlowFixMe(stdout-is-string)
-    const outdated: { [string]: Outdated } = JSON.parse(result.stdout);
-    // $FlowFixMe(entries-returns-mixed)
-    const outdatedPackages: Array<[string, Outdated]> = Object.entries(
-      outdated
-    );
-    return outdatedPackages
-      .filter(
-        ([name, outdated]: [string, Outdated]) => outdated.latest !== "linked"
-      )
-      .reduce((acc, [name, outdated]: [string, Outdated]) => {
-        const inDev = !!(pkg.devDependencies && pkg.devDependencies[name]);
-        return acc.concat({
-          name,
-          current: outdated.current,
-          currentRange: pkg[inDev ? "devDependencies" : "dependencies"][name],
-          latest: outdated.latest,
-          dev: inDev
-        });
-      }, []);
+    const lines = result.stdout
+      .split(EOL)
+      .filter(line => line.trim().length)
+      .map(line => JSON.parse(line));
+    const updates = lines.filter(line => {
+      if (line.type === "error") {
+        throw new Error(line.data);
+      }
+      return line.type === "table";
+    });
+    const outdated = updates.reduce((acc, table) => {
+      const updates = table.data.body
+        .map(update => {
+          const [name, current, , latest, type] = update;
+          return {
+            name,
+            current,
+            latest,
+            currentRange: pkg[type][name],
+            dev: type !== "dependencies"
+          };
+        })
+        .filter(
+          update => update.wanted !== "exotic" && update.latest !== "exotic"
+        );
+
+      return acc.concat(updates);
+    }, []);
+    return outdated;
   }
 
   async install(packageDirectory: string): Promise<void> {
