@@ -1,12 +1,17 @@
 // @flow
+import { cpus } from "os";
 import yargs from "yargs";
-import { version } from "../package.json";
+import { version } from "../../package.json";
 
 export type CLIOptions = {
   ignore: Array<string>,
+  bail: boolean,
   perPackage: boolean,
   token: string,
-  dryRun: boolean
+  dryRun: boolean,
+  packageManager: ?string,
+  repositoryStructure: ?string,
+  concurrency: number
 };
 
 export default yargs
@@ -42,6 +47,12 @@ export default yargs
     type: "string",
     description:
       "Plugin names for repository structure\nIf not specified, detect your project automatically"
+  })
+  .option("concurrency", {
+    group: "Advanced",
+    type: "number",
+    description: "Specify the maximum number of concurrency",
+    default: cpus().length
   })
   .option("ignore", {
     type: "string",

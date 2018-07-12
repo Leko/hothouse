@@ -1,49 +1,67 @@
 // @flow
 import path from "path";
-import minimatch from "minimatch";
-import semver from "semver";
+import zipObject from "lodash/zipObject";
 import type {
-  Hosting,
-  Structure,
   PackageManager,
+  Structure,
   Updates,
   UpdateDetails,
+  ApplyResult,
   GitImpl
 } from "@hothouse/types";
 import type UpdateChunk from "./UpdateChunk";
-import hostings, { UnknownHosting } from "./Hosting";
+import { split } from "./UpdateChunk";
 import Package from "./Package";
-import md2html from "./md2html";
+import configure from "./tasks/configure";
 import createCommitMessage from "./commitMessage";
-import {
-  createPullRequestTitle,
-  createPullRequestMessage
-} from "./pullRequest";
+import WorkerPool from "./WorkerPool";
+import * as actions from "./actions";
 
 const debug = require("debug")("hothouse:Engine");
 
+type EngineOptions = {|
+  token: string,
+  bail: boolean,
+  ignore: Array<string>,
+  perPackage: boolean,
+  concurrency: number,
+  dryRun: boolean,
+  packageManager: ?string,
+  repositoryStructure: ?string,
+  gitImpl: GitImpl
+|};
+
 export default class Engine {
-  repositoryStructure: Structure;
-  packageManager: PackageManager;
-  gitImpl: GitImpl;
+  token: string;
+  bail: boolean;
+  ignore: Array<string>;
+  perPackage: boolean;
   dryRun: boolean;
+  concurrency: number;
+  gitImpl: GitImpl;
+  packageManager: ?string;
+  repositoryStructure: ?string;
 
   constructor({
+    token,
+    bail,
+    ignore,
+    perPackage,
+    dryRun,
+    concurrency,
     packageManager,
     repositoryStructure,
-    dryRun,
     gitImpl
-  }: {|
-    packageManager: PackageManager,
-    repositoryStructure: Structure,
-    dryRun: boolean,
-    gitImpl: GitImpl
-  |}) {
-    this.repositoryStructure = repositoryStructure;
-    this.packageManager = packageManager;
+  }: EngineOptions) {
+    this.token = token;
+    this.bail = bail;
+    this.ignore = ignore;
+    this.perPackage = perPackage;
     this.dryRun = dryRun;
+    this.concurrency = concurrency;
     this.gitImpl = gitImpl;
-
+    this.packageManager = packageManager;
+    this.repositoryStructure = repositoryStructure;
     debug(`dryRun=${String(dryRun)}`);
   }
 
@@ -51,51 +69,113 @@ export default class Engine {
     return this.dryRun ? "(dryRun) " : "";
   }
 
-  async getPackages(directory: string): Promise<Array<string>> {
-    return this.repositoryStructure.getPackages(directory);
-  }
+  async run(directory: string): Promise<Array<ApplyResult>> {
+    const config = {
+      rootDirectory: directory,
+      packageManager: this.packageManager,
+      repositoryStructure: this.repositoryStructure,
+      ignore: this.ignore,
+      dryRun: this.dryRun,
+      token: this.token
+    };
+    const {
+      token,
+      pkg,
+      packageManager,
+      repositoryStructure,
+      hosting
+    } = await configure(actions.configure(config));
+    const pool = new WorkerPool({
+      concurrency: this.concurrency
+    });
 
-  async getUpdates(
-    packageDirectory: string,
-    blacklist: Array<string>
-  ): Promise<Updates> {
-    const updates = await this.packageManager.getUpdates(packageDirectory);
-    return updates
-      .filter(update => {
-        if (semver.satisfies(update.latest, update.currentRange)) {
-          debug(
-            `${update.name}@${update.latest} covered in current semver range(${
-              update.currentRange
-            }). Ignored`
-          );
-          return false;
-        }
-        if (semver.lt(update.latest, update.current)) {
-          debug(
-            `${update.name}@${update.latest} less than current version(${
-              update.current
-            }). Ignored`
-          );
-          return false;
-        }
+    try {
+      await pool.configure(config);
 
-        return true;
-      })
-      .filter(update => {
-        if (!blacklist.every(name => !minimatch(name, update.name))) {
-          debug(
-            `${update.name}@${update.latest} match with black list. Ignored`
-          );
-          return false;
-        }
+      const repositoryUrl: string = pkg.getRepositoryHttpsUrl();
+      const baseBranch = await hosting.getDefaultBranch(token, repositoryUrl);
+      const localPackages = await repositoryStructure.getPackages(directory);
+      debug(`Found ${localPackages.length} packages:`, localPackages);
 
-        return true;
-      });
+      const updatesList = await Promise.all(
+        localPackages.map(localPackage =>
+          pool.dispatch(actions.fetchUpdates(localPackage))
+        )
+      );
+      const allUpdates = zipObject(localPackages, updatesList);
+
+      const chunks = split(allUpdates, this.perPackage);
+      const updateDetails: Array<UpdateDetails> = await Promise.all(
+        chunks.map(chunk => pool.dispatch(actions.fetchReleases(chunk)))
+      );
+
+      // FIXME: Parallelize
+      const branches: Array<string> = [];
+      for (let updateChunk of chunks) {
+        const branchName = this.createBranchName(updateChunk);
+        branches.push(branchName);
+        await this.inBranch(branchName, async () => {
+          let allChangeSet: Set<string> = new Set([]);
+          for (let localPackage of updateChunk.getPackagePaths()) {
+            try {
+              const updates = updateChunk.getUpdatesBy(localPackage);
+              const changeSet = await this.applyUpdates(
+                localPackage,
+                directory,
+                packageManager,
+                repositoryStructure,
+                updates
+              );
+              debug(path.relative(directory, localPackage), changeSet);
+              allChangeSet = new Set([...allChangeSet, ...changeSet]);
+            } catch (error) {
+              if (!this.bail) {
+                throw error;
+              }
+
+              // eslint-disable-next-line no-console
+              console.error(
+                `An error occured during update ${path.basename(
+                  localPackage
+                )}\n${error.stack}`
+              );
+            }
+          }
+          debug({ allChangeSet });
+          // FIXME: refactor structure
+          await this.commit(
+            this.token,
+            repositoryUrl,
+            directory,
+            updateChunk,
+            allChangeSet,
+            branchName
+          );
+        });
+      }
+
+      const results: Array<ApplyResult> = await Promise.all(
+        chunks
+          .map((chunk, i) => ({
+            updateChunk: chunk,
+            updateDetails: updateDetails[i],
+            source: branches[i],
+            base: baseBranch
+          }))
+          .map(payload => pool.dispatch(actions.applyUpdates(payload)))
+      );
+
+      return results;
+    } finally {
+      await pool.terminate();
+    }
   }
 
   async applyUpdates(
     packageDirectory: string,
     rootDirectory: string,
+    packageManager: PackageManager,
+    repositoryStructure: Structure,
     updates: Updates
   ): Promise<Set<string>> {
     const pkg = Package.createFromDirectory(packageDirectory);
@@ -113,16 +193,16 @@ export default class Engine {
     debug(
       `${this.logPrefix}Try to update dependencies in ${path.basename(
         packageDirectory
-      )} with ${this.packageManager.constructor.name}`
+      )} with ${packageManager.constructor.name}`
     );
     if (this.dryRun) {
       return new Set([]);
     }
     await pkg.save();
-    return this.repositoryStructure.install(
+    return repositoryStructure.install(
       packageDirectory,
       rootDirectory,
-      this.packageManager
+      packageManager
     );
   }
 
@@ -150,6 +230,8 @@ export default class Engine {
   }
 
   async commit(
+    token: string,
+    repositoryUrl: string,
     rootDirectory: string,
     updateChunk: UpdateChunk,
     changeSet: Set<string>,
@@ -160,190 +242,11 @@ export default class Engine {
 
     debug(`${this.logPrefix}Try to git add .`);
     debug(`${this.logPrefix}Try to commit with message:`, { message });
+    debug(`${this.logPrefix}Try to git push origin ${branchName}`);
     if (!this.dryRun) {
       await this.gitImpl.add(...changeSet);
       await this.gitImpl.commit(message);
-    }
-  }
-
-  async createPullRequest(
-    token: string,
-    rootDirectory: string,
-    updateChunk: UpdateChunk,
-    branchName: string
-  ): Promise<void> {
-    // FIXME: Parallelise
-    const changes: UpdateDetails = [];
-    for (let pkgPath in updateChunk.allUpdates) {
-      for (let update of updateChunk.allUpdates[pkgPath]) {
-        const packageAnnotation = `${update.name}@${update.latest}`;
-        const meta = await this.packageManager.getPackageMeta(
-          packageAnnotation
-        );
-        const pkg = new Package(meta);
-
-        const currentTag = await this.getTag(
-          token,
-          update.name,
-          update.current
-        );
-        const latestTag = await this.getTag(token, update.name, update.latest);
-        debug(packageAnnotation, {
-          currentTag,
-          latestTag
-        });
-        changes.push({
-          ...update,
-          repositoryUrl: pkg.getRepositoryHttpsUrl(),
-          compareUrl: await this.getCompareUrl(
-            token,
-            meta,
-            currentTag,
-            latestTag
-          ),
-          releaseNote: await this.getReleaseNote(token, meta, latestTag)
-        });
-      }
-    }
-    const title = createPullRequestTitle(changes);
-    const body = createPullRequestMessage(changes);
-    const repositoryUrl: string = Package.createFromDirectory(
-      rootDirectory
-    ).getRepositoryHttpsUrl();
-
-    const hosting = await this.detectHosting({
-      repository: { url: repositoryUrl }
-    });
-    const base = await hosting.getDefaultBranch(token, repositoryUrl);
-
-    debug(`${this.logPrefix}Try to git push origin ${branchName}`);
-    debug(`${this.logPrefix}Try to create PR:`, {
-      repositoryUrl,
-      base,
-      branchName,
-      title,
-      body
-    });
-    if (!this.dryRun) {
       await this.gitImpl.push(token, repositoryUrl, branchName);
-      await hosting.createPullRequest(
-        token,
-        repositoryUrl,
-        base,
-        branchName,
-        title,
-        body
-      );
-    }
-  }
-
-  async detectHosting(meta: Object): Promise<Hosting> {
-    if (!meta.repository || !meta.repository.url) {
-      return new UnknownHosting();
-    }
-
-    for (let hosting of hostings) {
-      if (await hosting.match(meta.repository.url)) {
-        return hosting;
-      }
-    }
-    return new UnknownHosting();
-  }
-
-  async getTag(
-    token: string,
-    packageName: string,
-    version: string
-  ): Promise<?string> {
-    const packageAnnotation = `${packageName}@${version}`;
-    debug(`Try to fetch tag ${packageAnnotation}`);
-
-    try {
-      const meta = await this.packageManager.getPackageMeta(packageAnnotation);
-      const hosting = await this.detectHosting(meta);
-
-      const commonTagNames = [`v${version}`, version];
-      for (let tag of commonTagNames) {
-        debug(`Check commonly named tag exists: ${tag}`);
-        if (await hosting.tagExists(token, meta.repository.url, tag)) {
-          debug(`Tag exists: ${tag}`);
-          return tag;
-        }
-        debug(`${tag} is not exists`);
-      }
-      if (!meta.gitHead) {
-        debug(
-          `gitHead is not specified so cannot resolve tag name: ${packageAnnotation}`
-        );
-        return null;
-      }
-      debug(`Resolve tag by commit sha: ${meta.gitHead}`);
-      return await hosting.shaToTag(token, meta.repository.url, meta.gitHead);
-    } catch (error) {
-      debug(
-        `An error occured during fetch compare url in ${packageName}@${version}:`,
-        error.stack
-      );
-      return null;
-    }
-  }
-
-  async getCompareUrl(
-    token: string,
-    meta: Object,
-    currentTag: ?string,
-    latestTag: ?string
-  ): Promise<?string> {
-    if (!currentTag || !latestTag) {
-      return null;
-    }
-
-    debug(`Try to fetch compare url ${meta.name}@${meta.version}`);
-    try {
-      const hosting = await this.detectHosting(meta);
-      return await hosting.getCompareUrl(
-        token,
-        meta.repository.url,
-        currentTag,
-        latestTag
-      );
-    } catch (error) {
-      debug(
-        `An error occured during fetch compare url in ${meta.name}@${
-          meta.version
-        }:`,
-        error.stack
-      );
-      return null;
-    }
-  }
-
-  async getReleaseNote(
-    token: string,
-    meta: Object,
-    latestTag: ?string
-  ): Promise<?string> {
-    if (!latestTag) {
-      return null;
-    }
-
-    debug(`Try to fetch release note about ${meta.name} with tag ${latestTag}`);
-    try {
-      const hosting = await this.detectHosting(meta);
-      const releaseNote = await hosting.tagToReleaseNote(
-        token,
-        meta.repository.url,
-        latestTag
-      );
-      return releaseNote ? md2html(releaseNote) : null;
-    } catch (error) {
-      debug(
-        `An error occured during fetch release note in ${meta.name}@${
-          meta.version
-        }:`,
-        error.stack
-      );
-      return null;
     }
   }
 }

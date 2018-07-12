@@ -1,7 +1,7 @@
 /* eslint-env jest */
 // @flow
 import assert from "assert";
-import Package, { replaceSemver } from "../src/Package";
+import Package from "../src/Package";
 
 test("Package.createFromDirectory can instantiate with valid directory", () => {
   const pkg = Package.createFromDirectory("../");
@@ -46,23 +46,4 @@ test("Package#getRepositoryHttpsUrl can resolve github shortcut format", () => {
     pkg.getRepositoryHttpsUrl(),
     "https://github.com/Leko/hothouse.git"
   );
-});
-
-test("replaceSemver can replace exact semver", () => {
-  assert.equal(replaceSemver("1.2.3", "4.5.6"), "4.5.6");
-});
-test("replaceSemver can replace tilde semver range", () => {
-  assert.equal(replaceSemver("~0.11.3", "0.12.0"), "~0.12.0");
-});
-test("replaceSemver can replace hat semver range", () => {
-  assert.equal(replaceSemver("^1.13.1", "2.0.0"), "^2.0.0");
-});
-test("replaceSemver can replace semver range with prerelease (like Babel)", () => {
-  assert.equal(
-    replaceSemver("^7.0.0-beta.49", "7.0.0-beta.51"),
-    "^7.0.0-beta.51"
-  );
-});
-test("replaceSemver throws Error when too many diffs", () => {
-  assert.throws(() => replaceSemver("^1.0.0-beta.1", "1.0.0-beta.202"));
 });

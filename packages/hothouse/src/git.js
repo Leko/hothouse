@@ -37,6 +37,10 @@ const impl: GitImpl = {
     spawn("git", "checkout", "-b", branchName);
   },
 
+  async deleteBranch(branchName: string): Promise<void> {
+    spawn("git", "branch", "-D", branchName);
+  },
+
   async commit(message: string): Promise<void> {
     debug("commit", message);
     spawn("git", "commit", "-m", message);
@@ -59,6 +63,7 @@ const impl: GitImpl = {
       await this.createBranch(branchName);
       await this.checkout(branchName);
       await fn();
+      await this.deleteBranch(branchName);
     } finally {
       await this.checkout(currentBranch);
     }
