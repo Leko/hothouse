@@ -53,7 +53,7 @@ class Yarn implements PackageManager {
     const outdated = updates.reduce((acc, table) => {
       const updates = table.data.body
         .map(update => {
-          const [name, current, , latest, type] = update;
+          const [name, current, , , latest, type] = update;
           return {
             name,
             current,
