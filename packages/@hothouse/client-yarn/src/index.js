@@ -55,8 +55,8 @@ class Yarn implements PackageManager {
         .map(update => table.data.head.reduce((formatted, field, idx) => ({
           ...formatted,
           [field]: update[idx],
-        }), {}));
-        .map(({name:Package, current:Current, latest:Latest, type:'Package Type'}) => ({
+        }), {}))
+        .map(({Package:name, Current:current, Latest:latest, 'Package Type':type}) => ({
           name,
           current,
           latest,
