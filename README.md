@@ -1,4 +1,4 @@
-# hothouse
+# Hothouse
 
 [![npm](https://img.shields.io/npm/v/hothouse.svg)](https://www.npmjs.com/package/hothouse)
 [![license](https://img.shields.io/github/license/Leko/hothouse.svg)](https://opensource.org/licenses/MIT)
