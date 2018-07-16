@@ -48,11 +48,22 @@ class Lerna implements Structure {
       throw new Error(result.stderr);
     }
 
+    return this.getChanges(packageDirectory, rootDirectory, npmClient);
+  }
+
+  async getChanges(
+    packageDirectory: string,
+    rootDirectory: string,
+    npmClient: PackageManager
+  ): Promise<Set<string>> {
     const prefix = path.relative(rootDirectory, packageDirectory);
-    return new Set([
-      path.join(prefix, "package.json"),
-      path.join(prefix, npmClient.getLockFileName())
-    ]);
+    // #88 package-lock.json should not be added nor committed if not exist
+    return new Set(
+      [
+        path.join(prefix, "package.json"),
+        path.join(prefix, npmClient.getLockFileName())
+      ].filter(fs.existsSync)
+    );
   }
 }
 

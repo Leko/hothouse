@@ -41,7 +41,12 @@ class YarnWorkspaces implements Structure {
     npmClient: PackageManager
   ): Promise<Set<string>> {
     await npmClient.install(rootDirectory);
-    return new Set(["package.json", "yarn.lock"]);
+    return this.getChanges();
+  }
+
+  async getChanges(): Promise<Set<string>> {
+    // #88 package-lock.json should not be added nor committed if not exist
+    return new Set(["package.json", "yarn.lock"].filter(fs.existsSync));
   }
 }
 
