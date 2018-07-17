@@ -56,13 +56,14 @@ class Lerna implements Structure {
     rootDirectory: string,
     npmClient: PackageManager
   ): Promise<Set<string>> {
-    const prefix = path.relative(rootDirectory, packageDirectory);
     // #88 package-lock.json should not be added nor committed if not exist
     return new Set(
       [
-        path.join(prefix, "package.json"),
-        path.join(prefix, npmClient.getLockFileName())
-      ].filter(fs.existsSync)
+        path.join(packageDirectory, "package.json"),
+        path.join(packageDirectory, npmClient.getLockFileName())
+      ]
+        .filter(fs.existsSync)
+        .map(p => path.relative(rootDirectory, p))
     );
   }
 }
