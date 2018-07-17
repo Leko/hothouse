@@ -1,16 +1,10 @@
 // @flow
-import fs from "fs";
 import cp from "child_process";
 import type { GitImpl } from "@hothouse/types";
-const git = require("isomorphic-git"); // FIXME: Replace with import
 
 const debug = require("debug")("hothouse:git");
-const repo = {
-  fs,
-  dir: "."
-};
 
-const spawn = (bin: string, ...args: Array<string>): void => {
+export const spawn = (bin: string, ...args: Array<string>): string => {
   const result = cp.spawnSync(bin, args, {
     encoding: "utf8"
   });
@@ -20,6 +14,8 @@ const spawn = (bin: string, ...args: Array<string>): void => {
   if (result.status !== 0) {
     throw new Error(result.stderr);
   }
+
+  return result.stdout;
 };
 
 const impl: GitImpl = {
@@ -53,7 +49,7 @@ const impl: GitImpl = {
 
   async getCurrentBranch(): Promise<string> {
     debug("getCurrentBranch");
-    return git.currentBranch({ ...repo });
+    return spawn("git", "rev-parse", "--abbrev-ref", "HEAD").trim();
   },
 
   async inBranch(branchName: string, fn: () => any): Promise<void> {
@@ -63,6 +59,7 @@ const impl: GitImpl = {
       await this.createBranch(branchName);
       await this.checkout(branchName);
       await fn();
+      await this.checkout(currentBranch);
       await this.deleteBranch(branchName);
     } finally {
       await this.checkout(currentBranch);
