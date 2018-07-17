@@ -129,6 +129,10 @@ export default class Engine {
           for (let localPackage of updateChunk.getPackagePaths()) {
             try {
               const updates = updateChunk.getUpdatesBy(localPackage);
+              if (updates.length === 0) {
+                debug(`No updates available in: ${localPackage}. Skipped`);
+                continue;
+              }
               const changeSet = await this.applyUpdates(
                 localPackage,
                 directory,
