@@ -60,5 +60,8 @@
   },
   "collectCoverageFrom": [
     "src/*.{js,jsx}"
-  ]
+  ],
+  "devDependencies": {
+    "rimraf": "^2.6.2"
+  }
 }
