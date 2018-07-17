@@ -1,0 +1,19 @@
+{
+  "name": "is-yarn-workspaces",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Fixture of empty yarn workspaces projects",
+  "main": "index.js",
+  "workspaces": [
+    "workspace-a",
+    "workspace-b"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "rimraf": "^2.6.2"
+  },
+  "author": "",
+  "license": "ISC"
+}

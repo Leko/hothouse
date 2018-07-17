@@ -18,7 +18,22 @@ class SinglePackage implements Structure {
     npmClient: PackageManager
   ): Promise<Set<string>> {
     await npmClient.install(packageDirectory);
-    return new Set(["package.json", npmClient.getLockFileName()]);
+    return this.getChanges(rootDirectory, npmClient);
+  }
+
+  async getChanges(
+    rootDirectory: string,
+    npmClient: PackageManager
+  ): Promise<Set<string>> {
+    // #88 package-lock.json should not be added nor committed if not exist
+    return new Set(
+      [
+        path.join(rootDirectory, "package.json"),
+        path.join(rootDirectory, npmClient.getLockFileName())
+      ]
+        .filter(fs.existsSync)
+        .map(p => path.relative(rootDirectory, p))
+    );
   }
 }
 

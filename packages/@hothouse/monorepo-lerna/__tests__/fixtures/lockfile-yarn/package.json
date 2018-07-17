@@ -1,0 +1,6 @@
+{
+  "name": "has-lockfile-yarn",
+  "version": "0.0.0",
+  "description": "Fixture of empty lerna projects with yarn.lock",
+  "license": "MIT"
+}
