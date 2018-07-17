@@ -1,0 +1,8 @@
+{
+  "name": "has-package-lock-json",
+  "version": "0.0.0",
+  "license": "MIT",
+  "dependencies": {
+    "rimraf": "^2.6.2"
+  }
+}
