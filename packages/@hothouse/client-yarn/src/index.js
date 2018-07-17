@@ -52,18 +52,19 @@ class Yarn implements PackageManager {
     });
     const outdated = updates.reduce((acc, table) => {
       const updates = table.data.body
-        .map(update => {
-          const [name, current, , latest, type] = update;
-          return {
-            name,
-            current,
-            latest,
-            currentRange: pkg[type][name],
-            dev: type !== "dependencies"
-          };
-        })
+        .map(update => table.data.head.reduce((formatted, field, idx) => ({
+          ...formatted,
+          [field]: update[idx],
+        }), {}))
+        .map(({Package:name, Current:current, Latest:latest, 'Package Type':type}) => ({
+          name,
+          current,
+          latest,
+          currentRange: pkg[type][name],
+          dev: type !== "dependencies"
+        }))
         .filter(
-          update => update.wanted !== "exotic" && update.latest !== "exotic"
+          update => update.latest !== "exotic"
         );
 
       return acc.concat(updates);
