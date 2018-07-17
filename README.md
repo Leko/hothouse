@@ -7,7 +7,7 @@
 
 Continuous dependency update for Node.js project like [Greenkeeper](https://greenkeeper.io/).
 
-![demo](https://raw.githubusercontent.com/Leko/hothouse/master/docs/demo.svg?sanitize=true)
+![demo](./docs/demo.svg)
 ![image](https://user-images.githubusercontent.com/1424963/42268316-23121072-7fb6-11e8-8238-6a97ea7c3779.png)
 
 ## Feature
