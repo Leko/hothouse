@@ -1,14 +1,8 @@
 // @flow
-import fs from "fs";
 import cp from "child_process";
 import type { GitImpl } from "@hothouse/types";
-const git = require("isomorphic-git"); // FIXME: Replace with import
 
 const debug = require("debug")("hothouse:git");
-const repo = {
-  fs,
-  dir: "."
-};
 
 const spawn = (bin: string, ...args: Array<string>): string => {
   const result = cp.spawnSync(bin, args, {
