@@ -22,6 +22,8 @@
     "glob": "^7.1.2"
   },
   "devDependencies": {
+    "@hothouse/client-npm": "^0.4.1",
+    "@hothouse/client-yarn": "^0.4.1",
     "@hothouse/types": "^0.4.1"
   },
   "babel": {

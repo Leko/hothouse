@@ -1,8 +1,6 @@
 {
   "name": "is-lerna",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "description": "Fixture of empty lerna projects",
-  "main": "index.js",
-  "author": "",
-  "license": "ISC"
+  "license": "MIT"
 }
