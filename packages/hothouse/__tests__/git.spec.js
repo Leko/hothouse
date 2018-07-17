@@ -16,6 +16,8 @@ describe("git", () => {
     }
     process.chdir(workDir);
     spawn("git", "init");
+    spawn("git", "config", "user.name", "Hothouse tests");
+    spawn("git", "config", "user.email", "hothouse@example.com");
     spawn("git", "commit", "--allow-empty", "-m", "Initial commit");
   });
   afterEach(() => {
