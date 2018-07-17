@@ -5,8 +5,7 @@ import { tmpdir } from "os";
 import fs from "fs";
 import { sep } from "path";
 import rimraf from "rimraf";
-import { spawnSync } from "child_process";
-import git from "../src/git";
+import git, { spawn } from "../src/git";
 
 describe("git", () => {
   const workDir = fs.mkdtempSync(`${tmpdir()}${sep}`);
@@ -16,10 +15,8 @@ describe("git", () => {
       fs.mkdirSync(workDir);
     }
     process.chdir(workDir);
-    spawnSync("git", ["init"], { cwd: workDir });
-    spawnSync("git", ["commit", "--allow-empty", "-m", "Initial commit"], {
-      cwd: workDir
-    });
+    spawn("git", "init");
+    spawn("git", "commit", "--allow-empty", "-m", "Initial commit");
   });
   afterEach(() => {
     rimraf.sync(workDir);
@@ -31,7 +28,7 @@ describe("git", () => {
   });
   test("git.getCurrentBranch can return current branch after checkout another branch", async () => {
     const branch = "hoge";
-    spawnSync("git", ["checkout", "-b", branch], { cwd: workDir });
+    spawn("git", "checkout", "-b", branch);
     assert.strictEqual(await git.getCurrentBranch(), branch);
   });
 

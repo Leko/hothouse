@@ -4,7 +4,7 @@ import type { GitImpl } from "@hothouse/types";
 
 const debug = require("debug")("hothouse:git");
 
-const spawn = (bin: string, ...args: Array<string>): string => {
+export const spawn = (bin: string, ...args: Array<string>): string => {
   const result = cp.spawnSync(bin, args, {
     encoding: "utf8"
   });
