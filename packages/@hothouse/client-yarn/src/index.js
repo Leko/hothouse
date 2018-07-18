@@ -40,7 +40,7 @@ class Yarn implements PackageManager {
     }
 
     // $FlowFixMe(stdout-is-string)
-    const lines = result.stdout
+    const lines = `${result.stdout}\n${result.stderr}`
       .split(EOL)
       .filter(line => line.trim().length)
       .map(line => JSON.parse(line));
@@ -52,20 +52,30 @@ class Yarn implements PackageManager {
     });
     const outdated = updates.reduce((acc, table) => {
       const updates = table.data.body
-        .map(update => table.data.head.reduce((formatted, field, idx) => ({
-          ...formatted,
-          [field]: update[idx],
-        }), {}))
-        .map(({Package:name, Current:current, Latest:latest, 'Package Type':type}) => ({
-          name,
-          current,
-          latest,
-          currentRange: pkg[type][name],
-          dev: type !== "dependencies"
-        }))
-        .filter(
-          update => update.latest !== "exotic"
-        );
+        .map(update =>
+          table.data.head.reduce(
+            (formatted, field, idx) => ({
+              ...formatted,
+              [field]: update[idx]
+            }),
+            {}
+          )
+        )
+        .map(
+          ({
+            Package: name,
+            Current: current,
+            Latest: latest,
+            "Package Type": type
+          }) => ({
+            name,
+            current,
+            latest,
+            currentRange: pkg[type][name],
+            dev: type !== "dependencies"
+          })
+        )
+        .filter(update => update.latest !== "exotic");
 
       return acc.concat(updates);
     }, []);
