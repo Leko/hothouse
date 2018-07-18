@@ -20,7 +20,7 @@ export default class WorkerPool {
 
     this.options = options;
     this.pool = new Pool(concurrency);
-    this.pool.on("error", e => reporter.reportError(e));
+    this.pool.on("error", (job, e) => reporter.reportError(e));
   }
 
   async configure(config: Config): Promise<void> {
