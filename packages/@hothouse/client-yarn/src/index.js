@@ -2,6 +2,7 @@
 import { EOL } from "os";
 import fs from "fs";
 import path from "path";
+import zipObject from "lodash/zipObject";
 import cp from "child_process";
 import type { PackageManager, Updates } from "@hothouse/types";
 import Lerna from "@hothouse/monorepo-lerna";
@@ -51,16 +52,9 @@ class Yarn implements PackageManager {
       return line.type === "table";
     });
     const outdated = updates.reduce((acc, table) => {
-      const updates = table.data.body
-        .map(update =>
-          table.data.head.reduce(
-            (formatted, field, idx) => ({
-              ...formatted,
-              [field]: update[idx]
-            }),
-            {}
-          )
-        )
+      const rows = table.data.body.map(row => zipObject(table.data.head, row));
+      const updates = rows
+        .filter(row => this.filterRow(row, pkg))
         .map(
           ({
             Package: name,
@@ -74,8 +68,7 @@ class Yarn implements PackageManager {
             currentRange: pkg[type][name],
             dev: type !== "dependencies"
           })
-        )
-        .filter(update => update.latest !== "exotic");
+        );
 
       return acc.concat(updates);
     }, []);
@@ -102,6 +95,10 @@ class Yarn implements PackageManager {
 
     // $FlowFixMe(stdio-is-string)
     return JSON.parse(result.stdout);
+  }
+
+  filterRow({ Latest, Workspace }: Object, pkg: Object): boolean {
+    return Latest !== "exotic" && (Workspace && Workspace === pkg.name);
   }
 }
 
