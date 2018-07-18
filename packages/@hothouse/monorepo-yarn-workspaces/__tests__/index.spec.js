@@ -29,6 +29,18 @@ test("YarnWorkspaces#match must returns false if directory not have package.json
   );
 });
 
+test("YarnWorkspaces#getPackages should return [package.json, yarn.lock] when lockfile exists", async () => {
+  const lerna = new YarnWorkspaces();
+  const prefix = path.join(
+    __dirname,
+    "fixtures",
+    "has-yarn-workspaces-with-lockfile"
+  );
+  const expected = [path.join(prefix, "packages", "child-a")];
+  const actual = await lerna.getPackages(prefix);
+  assert.deepStrictEqual(actual, expected);
+});
+
 test("YarnWorkspaces#getChanges should return [package.json] when lockfile not exists", async () => {
   const lerna = new YarnWorkspaces();
   const expected = new Set(["package.json"]);
