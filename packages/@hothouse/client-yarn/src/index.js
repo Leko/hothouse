@@ -94,7 +94,7 @@ class Yarn implements PackageManager {
     });
 
     // $FlowFixMe(stdio-is-string)
-    return JSON.parse(result.stdout);
+    return JSON.parse(result.stdout).data;
   }
 
   filterRow({ Latest, Workspace }: Object, pkg: Object): boolean {
