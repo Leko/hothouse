@@ -50,10 +50,17 @@ class Yarn implements PackageManager {
     }
 
     // $FlowFixMe(stdout-is-string)
-    const lines = `${result.stdout}\n${result.stderr}`
-      .split(EOL)
-      .filter(line => line.trim().length)
-      .map(line => JSON.parse(line));
+    const output = `${result.stdout}\n${result.stderr}`;
+    let lines;
+    try {
+      lines = output
+        .split(EOL)
+        .filter(line => line.trim().length)
+        .map(line => JSON.parse(line));
+    } catch (e) {
+      debug(`Parse failed:\n${output}`);
+      throw e;
+    }
     const updates = lines.filter(line => {
       if (line.type === "error") {
         throw new Error(line.data);
