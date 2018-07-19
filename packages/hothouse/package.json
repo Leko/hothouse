@@ -1,6 +1,6 @@
 {
   "name": "hothouse",
-  "version": "0.4.4",
+  "version": "0.4.5",
   "description": "Continuous dependency update for Node.js project",
   "bin": {
     "hothouse": "./dist/cli/index.js"
@@ -30,11 +30,11 @@
   },
   "homepage": "https://github.com/Leko/hothouse#readme",
   "dependencies": {
-    "@hothouse/client-npm": "^0.4.4",
-    "@hothouse/client-yarn": "^0.4.4",
-    "@hothouse/monorepo-lerna": "^0.4.4",
-    "@hothouse/monorepo-yarn-workspaces": "^0.4.4",
-    "@hothouse/types": "^0.4.4",
+    "@hothouse/client-npm": "^0.4.5",
+    "@hothouse/client-yarn": "^0.4.5",
+    "@hothouse/monorepo-lerna": "^0.4.5",
+    "@hothouse/monorepo-yarn-workspaces": "^0.4.5",
+    "@hothouse/types": "^0.4.5",
     "@octokit/rest": "^15.9.2",
     "chalk": "^2.4.1",
     "debug": "^3.1.0",
