@@ -8,8 +8,17 @@ import type { PackageManager, Updates } from "@hothouse/types";
 import Lerna from "@hothouse/monorepo-lerna";
 import YarnWorkspaces from "@hothouse/monorepo-yarn-workspaces";
 
+const debug = require("debug")("hothouse:NpmClient:Yarn");
 const lerna = new Lerna();
 const yarnWorkspaces = new YarnWorkspaces();
+
+type YarnOutdated = {|
+  Package: string,
+  Current: string,
+  Latest: string,
+  "Package Type": string,
+  Workspace?: string
+|};
 
 class Yarn implements PackageManager {
   async match(directory: string): Promise<boolean> {
@@ -61,7 +70,7 @@ class Yarn implements PackageManager {
             Current: current,
             Latest: latest,
             "Package Type": type
-          }) => ({
+          }: YarnOutdated) => ({
             name,
             current,
             latest,
@@ -97,8 +106,21 @@ class Yarn implements PackageManager {
     return JSON.parse(result.stdout).data;
   }
 
-  filterRow({ Latest, Workspace }: Object, pkg: Object): boolean {
-    return Latest !== "exotic" && (Workspace && Workspace === pkg.name);
+  filterRow(
+    { Package, Latest, Workspace }: YarnOutdated,
+    pkg: Object
+  ): boolean {
+    // exotic: local package
+    if (Latest === "exotic") {
+      debug(`${Package} is linked package. Ignored`);
+      return false;
+    }
+    // Yarn workspaces include other package updates
+    if (Workspace && Workspace !== pkg.name) {
+      debug(`${Package} is outside dependency of ${pkg.name}. Ignored`);
+      return false;
+    }
+    return true;
   }
 }
 
