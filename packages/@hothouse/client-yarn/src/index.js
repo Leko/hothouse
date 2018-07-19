@@ -42,10 +42,16 @@ class Yarn implements PackageManager {
     // $FlowFixMe(dynamic-require)
     const pkg = require(path.join(packageDirectory, "package.json"));
     const outdated = this.getOutdated(packageDirectory);
-
-    return outdated
-      .filter(row => this.filterRow(row, pkg))
-      .map(row => this.toUpdate(row, pkg));
+    const resolutions = outdated
+      .filter(
+        ({ "Package Type": PackageType }) =>
+          PackageType === "resolutionDependencies"
+      )
+      .reduce((acc, { Package }) => ({ ...acc, [Package]: true }), {});
+    const filterd = outdated.filter(row =>
+      this.filterRow(row, pkg, resolutions)
+    );
+    return filterd.map(row => this.toUpdate(row, pkg));
   }
 
   async install(packageDirectory: string): Promise<void> {
@@ -136,9 +142,17 @@ class Yarn implements PackageManager {
   }
 
   filterRow(
-    { Package, Latest, Workspace }: YarnOutdated,
-    pkg: Object
+    { Package, Latest, Workspace, "Package Type": PackageType }: YarnOutdated,
+    pkg: Object,
+    resolutions?: { [string]: boolean } = {}
   ): boolean {
+    // Hothouse should ignore resolution dependencies
+    // Some user specify `resolutions` when have any troubles
+    // Also, I don’t know whether the trouble will be solved by updating
+    if (resolutions[Package]) {
+      debug(`${Package} is specified in resolutions. Ignored`);
+      return false;
+    }
     // exotic: local package
     if (Latest === "exotic") {
       debug(`${Package} is linked package. Ignored`);
