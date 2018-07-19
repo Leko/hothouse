@@ -82,11 +82,6 @@ class Yarn implements PackageManager {
     // $FlowFixMe(stdout-is-string)
     const output = `${result.stdout}\n${result.stderr}`;
     const lines = this.parseLineJson(output);
-    lines.forEach(line => {
-      if (line.type === "error") {
-        throw new Error(line.data);
-      }
-    });
     const table = lines.find(line => line.type === "table");
     if (!table) {
       throw new Error(`Cannot find outdated results in:\n${output}`);
@@ -95,7 +90,7 @@ class Yarn implements PackageManager {
   }
 
   parseLineJson(lines: string): Array<Object> {
-    return lines
+    const parsed = lines
       .split(EOL)
       .filter(line => line.trim().length)
       .map(line => {
@@ -108,6 +103,12 @@ class Yarn implements PackageManager {
         }
       })
       .filter(line => line !== null);
+    parsed.forEach(line => {
+      if (line.type === "error") {
+        throw new Error(line.data);
+      }
+    });
+    return parsed;
   }
 
   parseOutdated(table: {
