@@ -33,6 +33,51 @@ test("Yarn#getLockFileName should returns yarn.lock", async () => {
   assert(yarn.getLockFileName(), "yarn.lock");
 });
 
+test("Yarn#toUpdate can retries currentRange from dependencies", async () => {
+  const yarn = new Yarn();
+  const pkg = {
+    dependencies: {
+      "pkg-a": "^1.2.0"
+    }
+  };
+  const payload = {
+    Package: "pkg-a",
+    Current: "1.2.3",
+    Latest: "2.0.0",
+    "Package Type": "dependencies"
+  };
+  const expected = {
+    name: "pkg-a",
+    current: "1.2.3",
+    currentRange: "^1.2.0",
+    latest: "2.0.0",
+    dev: false
+  };
+  assert.deepStrictEqual(yarn.toUpdate(payload, pkg), expected);
+});
+test("Yarn#toUpdate can retries currentRange from devDependencies", async () => {
+  const yarn = new Yarn();
+  const pkg = {
+    devDependencies: {
+      "pkg-a": "^1.2.0"
+    }
+  };
+  const payload = {
+    Package: "pkg-a",
+    Current: "1.2.3",
+    Latest: "2.0.0",
+    "Package Type": "devDependencies"
+  };
+  const expected = {
+    name: "pkg-a",
+    current: "1.2.3",
+    currentRange: "^1.2.0",
+    latest: "2.0.0",
+    dev: true
+  };
+  assert.deepStrictEqual(yarn.toUpdate(payload, pkg), expected);
+});
+
 test("Yarn#filterRow should return true when Latest is not exotic", () => {
   const yarn = new Yarn();
   const actual = yarn.filterRow(
@@ -109,5 +154,27 @@ test("Yarn#getUpdates can retrieve updates", async () => {
   assert.deepStrictEqual(filetered, [
     { name: "babel", currentRange: "~6.0.0", dev: false },
     { name: "babel-cli", currentRange: "~6.0.0", dev: true }
+  ]);
+});
+test("Yarn#getUpdates should only return packages not specified in resolutions", async () => {
+  const yarn = new Yarn();
+  const dir = path.join(
+    __dirname,
+    "fixtures",
+    "update-available-with-resolutions"
+  );
+  const updates = await yarn.getUpdates(dir);
+  updates.forEach(({ name, current, currentRange, latest }) => {
+    assert(semver.satisfies(current, currentRange), `${name}:currentRange`);
+    assert(semver.valid(current), `${name}:current`);
+    assert(semver.valid(latest), `${name}:latest`);
+  });
+  const filetered = updates.map(({ name, current, currentRange, dev }) => ({
+    name,
+    currentRange,
+    dev
+  }));
+  assert.deepStrictEqual(filetered, [
+    { name: "babel", currentRange: "~6.0.0", dev: false }
   ]);
 });
