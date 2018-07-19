@@ -38,8 +38,12 @@ export default class Package {
   }
 
   getRepositoryHttpsUrl(): string {
-    const gitHost = fromUrl(this.pkgJsonNormalized.repository.url);
+    if (/^https:/.test(this.pkgJsonNormalized.repository.url)) {
+      return this.pkgJsonNormalized.repository.url;
+    }
+
     // https() returns git+https protocol always.
+    const gitHost = fromUrl(this.pkgJsonNormalized.repository.url);
     return gitHost.https().replace("git+", "");
   }
 

@@ -1,16 +1,12 @@
 {
-  "name": "is-yarn-workspaces",
+  "name": "has-yarn-workspaces-with-lockfile",
   "private": true,
   "version": "1.0.0",
   "description": "Fixture of empty yarn workspaces projects",
   "main": "index.js",
   "workspaces": [
-    "workspace-a",
-    "workspace-b"
+    "packages/*"
   ],
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
   "dependencies": {
     "rimraf": "^2.6.2"
   },

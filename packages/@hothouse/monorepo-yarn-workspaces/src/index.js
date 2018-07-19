@@ -18,9 +18,16 @@ class YarnWorkspaces implements Structure {
 
   async getPackages(directory: string): Promise<Array<string>> {
     // $FlowFixMe(dynamic-require)
-    const settings = require(path.join(directory, "lerna.json"));
-    return settings.packages
-      .reduce((acc, pkg) => acc.concat(glob.sync(pkg, { absolute: true })), [])
+    const settings = require(path.join(directory, "package.json"));
+    const packages = Array.isArray(settings.workspaces)
+      ? settings.workspaces
+      : settings.workspaces.packages;
+    return packages
+      .reduce(
+        (acc, pkg) =>
+          acc.concat(glob.sync(path.join(directory, pkg), { absolute: true })),
+        []
+      )
       .filter(packagePath => {
         const isPackage = fs.existsSync(path.join(packagePath, "package.json"));
         if (!isPackage) {

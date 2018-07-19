@@ -2,13 +2,23 @@
 import { EOL } from "os";
 import fs from "fs";
 import path from "path";
+import zipObject from "lodash/zipObject";
 import cp from "child_process";
 import type { PackageManager, Updates } from "@hothouse/types";
 import Lerna from "@hothouse/monorepo-lerna";
 import YarnWorkspaces from "@hothouse/monorepo-yarn-workspaces";
 
+const debug = require("debug")("hothouse:NpmClient:Yarn");
 const lerna = new Lerna();
 const yarnWorkspaces = new YarnWorkspaces();
+
+type YarnOutdated = {|
+  Package: string,
+  Current: string,
+  Latest: string,
+  "Package Type": string,
+  Workspace?: string
+|};
 
 class Yarn implements PackageManager {
   async match(directory: string): Promise<boolean> {
@@ -40,10 +50,21 @@ class Yarn implements PackageManager {
     }
 
     // $FlowFixMe(stdout-is-string)
-    const lines = result.stdout
+    const output = `${result.stdout}\n${result.stderr}`;
+    let lines: Array<Object> = output
       .split(EOL)
       .filter(line => line.trim().length)
-      .map(line => JSON.parse(line));
+      .map(line => {
+        try {
+          return JSON.parse(line);
+        } catch (e) {
+          debug(`Failed to parse as JSON: ${line}. Ignored`);
+          // $FlowFixMe(filterd-after)
+          return null;
+        }
+      })
+      .filter(line => line !== null);
+
     const updates = lines.filter(line => {
       if (line.type === "error") {
         throw new Error(line.data);
@@ -51,20 +72,22 @@ class Yarn implements PackageManager {
       return line.type === "table";
     });
     const outdated = updates.reduce((acc, table) => {
-      const updates = table.data.body
-        .map(update => table.data.head.reduce((formatted, field, idx) => ({
-          ...formatted,
-          [field]: update[idx],
-        }), {}))
-        .map(({Package:name, Current:current, Latest:latest, 'Package Type':type}) => ({
-          name,
-          current,
-          latest,
-          currentRange: pkg[type][name],
-          dev: type !== "dependencies"
-        }))
-        .filter(
-          update => update.latest !== "exotic"
+      const rows = table.data.body.map(row => zipObject(table.data.head, row));
+      const updates = rows
+        .filter(row => this.filterRow(row, pkg))
+        .map(
+          ({
+            Package: name,
+            Current: current,
+            Latest: latest,
+            "Package Type": type
+          }: YarnOutdated) => ({
+            name,
+            current,
+            latest,
+            currentRange: pkg[type][name],
+            dev: type !== "dependencies"
+          })
         );
 
       return acc.concat(updates);
@@ -91,7 +114,24 @@ class Yarn implements PackageManager {
     });
 
     // $FlowFixMe(stdio-is-string)
-    return JSON.parse(result.stdout);
+    return JSON.parse(result.stdout).data;
+  }
+
+  filterRow(
+    { Package, Latest, Workspace }: YarnOutdated,
+    pkg: Object
+  ): boolean {
+    // exotic: local package
+    if (Latest === "exotic") {
+      debug(`${Package} is linked package. Ignored`);
+      return false;
+    }
+    // Yarn workspaces include other package updates
+    if (Workspace && Workspace !== pkg.name) {
+      debug(`${Package} is outside dependency of ${pkg.name}. Ignored`);
+      return false;
+    }
+    return true;
   }
 }
 
