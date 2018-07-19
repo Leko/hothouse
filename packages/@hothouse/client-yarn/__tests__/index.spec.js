@@ -156,3 +156,25 @@ test("Yarn#getUpdates can retrieve updates", async () => {
     { name: "babel-cli", currentRange: "~6.0.0", dev: true }
   ]);
 });
+test("Yarn#getUpdates should only return packages not specified in resolutions", async () => {
+  const yarn = new Yarn();
+  const dir = path.join(
+    __dirname,
+    "fixtures",
+    "update-available-with-resolutions"
+  );
+  const updates = await yarn.getUpdates(dir);
+  updates.forEach(({ name, current, currentRange, latest }) => {
+    assert(semver.satisfies(current, currentRange), `${name}:currentRange`);
+    assert(semver.valid(current), `${name}:current`);
+    assert(semver.valid(latest), `${name}:latest`);
+  });
+  const filetered = updates.map(({ name, current, currentRange, dev }) => ({
+    name,
+    currentRange,
+    dev
+  }));
+  assert.deepStrictEqual(filetered, [
+    { name: "babel", currentRange: "~6.0.0", dev: false }
+  ]);
+});

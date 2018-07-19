@@ -1,0 +1,17 @@
+{
+  "name": "update-available-with-resolutions",
+  "version": "0.0.0",
+  "license": "MIT",
+  "resolutions": {
+    "hothouse": "file:../../../../../hothouse",
+    "babel-cli": "6.0.0"
+  },
+  "dependencies": {
+    "is-yarn": "file:../is-yarn",
+    "babel": "~6.0.0"
+  },
+  "devDependencies": {
+    "hothouse": "file:../../../../../hothouse",
+    "babel-cli": "~6.0.0"
+  }
+}
