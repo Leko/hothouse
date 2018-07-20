@@ -38,6 +38,13 @@ export default class Package {
   }
 
   getRepositoryHttpsUrl(): string {
+    const { repository } = this.pkgJsonNormalized;
+    if (!repository || !repository.url) {
+      throw new Error(
+        `repository.url is not defined in ${this.pkgJsonPath ||
+          this.pkgJsonNormalized.name}`
+      );
+    }
     if (/^https:/.test(this.pkgJsonNormalized.repository.url)) {
       return this.pkgJsonNormalized.repository.url;
     }
