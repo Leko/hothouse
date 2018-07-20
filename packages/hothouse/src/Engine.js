@@ -94,7 +94,6 @@ export default class Engine {
       concurrency: this.concurrency,
       reporter: this.reporter
     });
-
     try {
       await pool.configure(config);
 
@@ -181,9 +180,6 @@ export default class Engine {
       await this.reporter.reportApplyResult(directory, results);
 
       return results;
-    } catch (error) {
-      await this.reporter.reportError(error);
-      throw error;
     } finally {
       await pool.terminate();
     }

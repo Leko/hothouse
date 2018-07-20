@@ -10,6 +10,7 @@ runner({
   cwd: process.cwd(),
   gitImpl,
   reporter
-}).catch(() => {
+}).catch(async error => {
+  reporter.reportError(error);
   process.exit(1);
 });
