@@ -47,3 +47,20 @@ test("Package#getRepositoryHttpsUrl can resolve github shortcut format", () => {
     "https://github.com/Leko/hothouse.git"
   );
 });
+test("Package#getRepositoryHttpsUrl throws when repository.url is not defined with pkgJsonPath", () => {
+  const pkg = new Package("../package.json");
+  delete pkg.pkgJsonNormalized.repository;
+  assert.throws(
+    () => pkg.getRepositoryHttpsUrl(),
+    new RegExp(`repository.url is not defined in ../package.json`)
+  );
+});
+test("Package#getRepositoryHttpsUrl throws when repository.url is not defined without pkgJsonPath", () => {
+  const pkgJson = require("../package.json");
+  const pkg = new Package(pkgJson);
+  delete pkg.pkgJsonNormalized.repository;
+  assert.throws(
+    () => pkg.getRepositoryHttpsUrl(),
+    new RegExp(`repository.url is not defined in ${pkgJson.name}`)
+  );
+});
