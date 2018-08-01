@@ -45,14 +45,25 @@ test("YarnWorkspaces#getChanges should return [package.json] when lockfile not e
   const lerna = new YarnWorkspaces();
   const expected = new Set(["package.json"]);
   const actual = await lerna.getChanges(
+    path.join(__dirname, "fixtures", "is-yarn-workspaces"),
     path.join(__dirname, "fixtures", "is-yarn-workspaces")
   );
   assert.deepStrictEqual(actual, expected);
 });
 test("YarnWorkspaces#getChanges should return [package.json, yarn.lock] when lockfile exists", async () => {
   const lerna = new YarnWorkspaces();
-  const expected = new Set(["package.json", "yarn.lock"]);
+  const expected = new Set([
+    path.join("packages", "child-a", "package.json"),
+    "yarn.lock"
+  ]);
   const actual = await lerna.getChanges(
+    path.join(
+      __dirname,
+      "fixtures",
+      "has-yarn-workspaces-with-lockfile",
+      "packages",
+      "child-a"
+    ),
     path.join(__dirname, "fixtures", "has-yarn-workspaces-with-lockfile")
   );
   assert.deepStrictEqual(actual, expected);
