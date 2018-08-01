@@ -37,9 +37,13 @@ export default class Package {
     deps[update.name] = replace(deps[update.name], update.latest);
   }
 
-  getRepositoryHttpsUrl(): string {
+  hasRepositoryUrl(): boolean {
     const { repository } = this.pkgJsonNormalized;
-    if (!repository || !repository.url) {
+    return repository && repository.url;
+  }
+
+  getRepositoryHttpsUrl(): string {
+    if (!this.hasRepositoryUrl()) {
       throw new Error(
         `repository.url is not defined in ${this.pkgJsonPath ||
           this.pkgJsonNormalized.name}`
