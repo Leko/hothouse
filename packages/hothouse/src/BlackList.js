@@ -9,6 +9,6 @@ export default class BlackList {
   }
 
   match(packageName: string): boolean {
-    return this.ignores.some(name => minimatch(name, packageName));
+    return this.ignores.some(name => minimatch(packageName, name));
   }
 }
