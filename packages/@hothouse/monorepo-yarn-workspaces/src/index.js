@@ -48,14 +48,17 @@ class YarnWorkspaces implements Structure {
     npmClient: PackageManager
   ): Promise<Set<string>> {
     await npmClient.install(rootDirectory);
-    return this.getChanges(rootDirectory);
+    return this.getChanges(packageDirectory, rootDirectory);
   }
 
-  async getChanges(rootDirectory: string): Promise<Set<string>> {
+  async getChanges(
+    packageDirectory: string,
+    rootDirectory: string
+  ): Promise<Set<string>> {
     // #88 package-lock.json should not be added nor committed if not exist
     return new Set(
       [
-        path.join(rootDirectory, "package.json"),
+        path.join(packageDirectory, "package.json"),
         path.join(rootDirectory, "yarn.lock")
       ]
         .filter(fs.existsSync)
