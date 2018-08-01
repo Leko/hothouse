@@ -55,6 +55,7 @@ export default class Package {
   }
 
   async save(): Promise<void> {
-    fs.writeFileSync(this.pkgJsonPath, JSON.stringify(this.pkgJson, null, 2));
+    const json = JSON.stringify(this.pkgJson, null, 2) + "\n";
+    fs.writeFileSync(this.pkgJsonPath, json);
   }
 }
