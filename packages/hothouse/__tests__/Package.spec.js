@@ -31,6 +31,22 @@ test("Package#getRepositoryHttpsUrl can resolve basic repository.url as https", 
     "https://github.com/Leko/hothouse.git"
   );
 });
+test("Package#getRepositoryHttpsUrl can resolve https protocol", () => {
+  const pkg = new Package("../package.json");
+  pkg.pkgJson.repository = "https://github.com/Leko/hothouse.git";
+  assert.equal(
+    pkg.getRepositoryHttpsUrl(),
+    "https://github.com/Leko/hothouse.git"
+  );
+});
+test("Package#getRepositoryHttpsUrl can resolve git+https protocol", () => {
+  const pkg = new Package("../package.json");
+  pkg.pkgJson.repository = "git+https://github.com/Leko/hothouse.git";
+  assert.equal(
+    pkg.getRepositoryHttpsUrl(),
+    "https://github.com/Leko/hothouse.git"
+  );
+});
 test("Package#getRepositoryHttpsUrl can resolve shortcut format (parse as GitHub) as https", () => {
   const pkg = new Package("../package.json");
   pkg.pkgJson.repository = "Leko/hothouse";
