@@ -9,11 +9,11 @@ const hostings = [new GitHub()];
 export { GitHub, UnknownHosting };
 
 export const detect = async (pkg: Package): Promise<Hosting> => {
-  const repositoryUrl = pkg.getRepositoryHttpsUrl();
-  if (!repositoryUrl) {
+  if (!pkg.hasRepositoryUrl()) {
     return new UnknownHosting();
   }
 
+  const repositoryUrl = pkg.getRepositoryHttpsUrl();
   for (let hosting of hostings) {
     if (await hosting.match(repositoryUrl)) {
       return hosting;

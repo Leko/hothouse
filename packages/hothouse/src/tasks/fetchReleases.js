@@ -39,8 +39,16 @@ export const getUpdateDetail = async (
   const pkgAnnotation = `${update.name}@${update.latest}`;
   const meta = await packageManager.getPackageMeta(pkgAnnotation);
   const pkg = new Package(meta);
-  const repositoryUrl = pkg.getRepositoryHttpsUrl();
+  if (!pkg.hasRepositoryUrl()) {
+    return {
+      ...update,
+      repositoryUrl: null,
+      compareUrl: null,
+      releaseNote: null
+    };
+  }
 
+  const repositoryUrl = pkg.getRepositoryHttpsUrl();
   const currentTag = await getTag(packageManager, token, name, current);
   const latestTag = await getTag(packageManager, token, name, latest);
   debug(pkgAnnotation, { currentTag, latestTag });

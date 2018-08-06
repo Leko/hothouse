@@ -37,9 +37,13 @@ export default class Package {
     deps[update.name] = replace(deps[update.name], update.latest);
   }
 
-  getRepositoryHttpsUrl(): string {
+  hasRepositoryUrl(): boolean {
     const { repository } = this.pkgJsonNormalized;
-    if (!repository || !repository.url) {
+    return repository && repository.url;
+  }
+
+  getRepositoryHttpsUrl(): string {
+    if (!this.hasRepositoryUrl()) {
       throw new Error(
         `repository.url is not defined in ${this.pkgJsonPath ||
           this.pkgJsonNormalized.name}`
@@ -55,6 +59,7 @@ export default class Package {
   }
 
   async save(): Promise<void> {
-    fs.writeFileSync(this.pkgJsonPath, JSON.stringify(this.pkgJson, null, 2));
+    const json = JSON.stringify(this.pkgJson, null, 2) + "\n";
+    fs.writeFileSync(this.pkgJsonPath, json);
   }
 }
