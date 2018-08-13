@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eux
 
+lerna exec can-npm-publish -- --verbose
+
 mkdir -p .release_note
 npm run bootstrap
 
