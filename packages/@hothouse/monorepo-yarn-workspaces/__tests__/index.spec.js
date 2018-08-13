@@ -29,34 +29,37 @@ test("YarnWorkspaces#match must returns false if directory not have package.json
   );
 });
 
-test("YarnWorkspaces#getPackages should return [package.json, yarn.lock] when lockfile exists", async () => {
-  const lerna = new YarnWorkspaces();
+test("YarnWorkspaces#getPackages should return package when lockfile exists", async () => {
+  const yarnWorkspaces = new YarnWorkspaces();
   const prefix = path.join(
     __dirname,
     "fixtures",
     "has-yarn-workspaces-with-lockfile"
   );
-  const expected = [path.join(prefix, "packages", "child-a")];
-  const actual = await lerna.getPackages(prefix);
-  assert.deepStrictEqual(actual, expected);
+  const expected = [
+    path.join(prefix),
+    path.join(prefix, "packages", "child-a")
+  ];
+  const actual = await yarnWorkspaces.getPackages(prefix);
+  expect(expected).toEqual(actual);
 });
 
 test("YarnWorkspaces#getChanges should return [package.json] when lockfile not exists", async () => {
-  const lerna = new YarnWorkspaces();
+  const yarnWorkspaces = new YarnWorkspaces();
   const expected = new Set(["package.json"]);
-  const actual = await lerna.getChanges(
+  const actual = await yarnWorkspaces.getChanges(
     path.join(__dirname, "fixtures", "is-yarn-workspaces"),
     path.join(__dirname, "fixtures", "is-yarn-workspaces")
   );
-  assert.deepStrictEqual(actual, expected);
+  expect(expected).toEqual(actual);
 });
 test("YarnWorkspaces#getChanges should return [package.json, yarn.lock] when lockfile exists", async () => {
-  const lerna = new YarnWorkspaces();
+  const yarnWorkspaces = new YarnWorkspaces();
   const expected = new Set([
     path.join("packages", "child-a", "package.json"),
     "yarn.lock"
   ]);
-  const actual = await lerna.getChanges(
+  const actual = await yarnWorkspaces.getChanges(
     path.join(
       __dirname,
       "fixtures",
@@ -66,5 +69,5 @@ test("YarnWorkspaces#getChanges should return [package.json, yarn.lock] when loc
     ),
     path.join(__dirname, "fixtures", "has-yarn-workspaces-with-lockfile")
   );
-  assert.deepStrictEqual(actual, expected);
+  expect(expected).toEqual(actual);
 });
