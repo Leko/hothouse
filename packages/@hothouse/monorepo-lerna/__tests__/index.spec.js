@@ -17,6 +17,18 @@ test("Lerna#match should returns true if directory not have lerna.json", async (
   );
 });
 
+test("Lerna#getPackages should include top-level package.json", async () => {
+  const lerna = new Lerna();
+  const pkg = path.join(__dirname, "fixtures", "lockfile-npm");
+  const expected = [
+    path.join(pkg),
+    path.join(pkg, "packages", "has-not-package-lock-json"),
+    path.join(pkg, "packages", "has-package-lock-json")
+  ];
+  const actual = await lerna.getPackages(pkg);
+  expect(expected).toEqual(actual);
+});
+
 test("Lerna#getChanges should return [prefix/package.json] when lockfile not exists", async () => {
   const lerna = new Lerna();
   const prefix = path.join("packages", "has-not-package-lock-json");
@@ -32,7 +44,7 @@ test("Lerna#getChanges should return [prefix/package.json] when lockfile not exi
     path.join(__dirname, "fixtures", "lockfile-npm"),
     new Npm()
   );
-  assert.deepStrictEqual(actual, expected);
+  expect(expected).toEqual(actual);
 });
 test("Lerna#getChanges should return [prefix/package.json, prefix/package-lock.json] when npmClient=npm lockfile exists", async () => {
   const lerna = new Lerna();
@@ -52,7 +64,7 @@ test("Lerna#getChanges should return [prefix/package.json, prefix/package-lock.j
     path.join(__dirname, "fixtures", "lockfile-npm"),
     new Npm()
   );
-  assert.deepStrictEqual(actual, expected);
+  expect(expected).toEqual(actual);
 });
 test("Lerna#getChanges should return [prefix/package.json] when npmClient=yarn lockfile not exists", async () => {
   const lerna = new Lerna();
@@ -69,7 +81,7 @@ test("Lerna#getChanges should return [prefix/package.json] when npmClient=yarn l
     path.join(__dirname, "fixtures", "lockfile-yarn"),
     new Yarn()
   );
-  assert.deepStrictEqual(actual, expected);
+  expect(expected).toEqual(actual);
 });
 test("Lerna#getChanges should return [prefix/package.json, prefix/yarn.lock] when npmClient=yarn lockfile exists", async () => {
   const lerna = new Lerna();
@@ -89,5 +101,5 @@ test("Lerna#getChanges should return [prefix/package.json, prefix/yarn.lock] whe
     path.join(__dirname, "fixtures", "lockfile-yarn"),
     new Yarn()
   );
-  assert.deepStrictEqual(actual, expected);
+  expect(expected).toEqual(actual);
 });
