@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.4.11",
+  "version": "0.4.12",
   "description": "Handle repository structure with Yarn workspaces",
   "main": "./dist/index.js",
   "scripts": {
@@ -22,7 +22,7 @@
     "glob": "^7.1.2"
   },
   "devDependencies": {
-    "@hothouse/types": "^0.4.11"
+    "@hothouse/types": "^0.4.12"
   },
   "babel": {
     "extends": "../../../.babelrc"
