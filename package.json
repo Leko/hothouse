@@ -62,7 +62,7 @@
     "flow-bin": "^0.75.0",
     "husky": "^0.14.3",
     "jest": "^23.2.0",
-    "lerna": "^2.9.0",
+    "lerna": "^3.0.3",
     "lerna-changelog": "^0.8.0",
     "prettier": "^1.13.5",
     "pretty-quick": "^1.6.0",
