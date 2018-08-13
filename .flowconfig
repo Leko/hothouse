@@ -1,4 +1,5 @@
 [ignore]
+; It can remove this line when after merged: https://github.com/dawsbot/config-chain/pull/31
 .*/node_modules/config-chain/test/.*
 
 [include]
