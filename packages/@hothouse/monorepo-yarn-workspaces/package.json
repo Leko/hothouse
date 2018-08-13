@@ -11,6 +11,9 @@
     "build": "../../../node_modules/.bin/babel src --out-dir dist",
     "test": "../../../node_modules/.bin/jest --coverage"
   },
+  "files": [
+    "dist"
+  ],
   "author": "Leko <leko.noor@gmail.com>",
   "license": "MIT",
   "bugs": {
@@ -30,5 +33,5 @@
   "collectCoverageFrom": [
     "src/*.{js,jsx}"
   ],
-  "gitHead": "f231c4c516d617ba66627534ff7e6eb95061720c"
+  "gitHead": "97cee2b39df40662cb9a2767e8c047066b6c9a98"
 }
