@@ -50,7 +50,7 @@
     "normalize-package-data": "^2.4.0",
     "remark": "^9.0.0",
     "remark-github": "^7.0.3",
-    "remark-html": "^7.0.0",
+    "remark-html": "^8.0.0",
     "remark-parse": "^5.0.0",
     "semver": "^5.5.0",
     "threads": "^0.12.0",
