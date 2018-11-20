@@ -48,7 +48,7 @@
     "mustache": "^3.0.0",
     "node-emoji": "^1.8.1",
     "normalize-package-data": "^2.4.0",
-    "remark": "^9.0.0",
+    "remark": "^10.0.1",
     "remark-github": "^7.0.3",
     "remark-html": "^8.0.0",
     "remark-parse": "^5.0.0",
