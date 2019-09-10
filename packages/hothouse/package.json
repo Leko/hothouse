@@ -42,7 +42,7 @@
     "chalk": "^2.4.1",
     "debug": "^4.0.1",
     "glob": "^7.1.2",
-    "hosted-git-info": "^2.6.1",
+    "hosted-git-info": "^3.0.0",
     "lodash": "^4.17.10",
     "minimatch": "^3.0.4",
     "mustache": "^3.0.0",
