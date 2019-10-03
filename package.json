@@ -11,7 +11,9 @@
     "build": "lerna run build",
     "test": "lerna run test",
     "lint": "eslint --cache '**/{src,__tests__}/**/*.js'",
-    "flow": "flow --show-all-errors"
+    "flow": "flow --show-all-errors",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "repository": {
     "type": "git",
@@ -68,5 +70,9 @@
     "prettier": "^1.13.5",
     "pretty-quick": "^1.6.0",
     "regenerator-runtime": "^0.12.0"
+  },
+  "snyk": true,
+  "dependencies": {
+    "snyk": "^1.230.5"
   }
 }
