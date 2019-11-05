@@ -37,7 +37,7 @@
   },
   "devDependencies": {
     "@hothouse/types": "^0.4.13",
-    "semver": "^5.5.0"
+    "semver": "^6.3.0"
   },
   "babel": {
     "extends": "../../../.babelrc"
