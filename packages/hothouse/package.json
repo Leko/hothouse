@@ -39,7 +39,7 @@
     "@hothouse/monorepo-yarn-workspaces": "^0.4.13",
     "@hothouse/types": "^0.4.13",
     "@octokit/rest": "^16.2.0",
-    "chalk": "^2.4.1",
+    "chalk": "^3.0.0",
     "debug": "^4.0.1",
     "glob": "^7.1.2",
     "hosted-git-info": "^2.6.1",
